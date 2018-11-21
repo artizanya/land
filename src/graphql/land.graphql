@@ -1,0 +1,22 @@
+# Hey Emacs, this is -*- coding: utf-8 -*-
+
+type Element {
+  id: String!
+  name: String!
+  description: String!
+  origin: String!,
+  processes: [String!]!
+  alternatives: [Element!]!
+}
+
+type Query {
+  element(
+    id: String!
+  ): Element
+
+  elements: [Element!]!
+}
+
+schema {
+  query: Query
+}
