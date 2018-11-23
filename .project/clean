@@ -3,10 +3,8 @@
 set -eu
 set -o pipefail
 
-# Use this script base dir name and the project name
-PRJ_PATH="`dirname \"${BASH_SOURCE[0]}\"`/.."
-PRJ_PATH="`( cd -P \"$PRJ_PATH\" && pwd )`"
-PRJ_NAME="`basename $PRJ_PATH`"
+PRJ_PATH="`dirname \"$0\"`"
+PRJ_PATH="`( cd -P \"$PRJ_PATH/..\" && pwd )`"
 
 cd $PRJ_PATH
 rm -vrf build
