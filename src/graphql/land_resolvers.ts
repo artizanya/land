@@ -2,7 +2,7 @@
 
 import { db, aql } from '@arangodb';
 
-const elements = module.context.collection('elements');
+const elements = module.context.collection('elements')!;
 
 const resolvers = {
   Element: {

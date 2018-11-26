@@ -2,15 +2,17 @@
 
 import { db, aql } from '@arangodb';
 
+const mxt = module.context;
+
 // Using module.context.collection allows us to use the
 // collection with a common prefix based on where the service
 // is mounted. This way we can have multiple copies of this
 // service mounted on the same database without worrying about
 // name conflicts in their collections.
-const episodes = module.context.collection('episodes');
-const characters = module.context.collection('characters');
-const friends = module.context.collection('friends');
-const appearsIn = module.context.collection('appearsIn');
+const episodes = mxt.collection('episodes')!;
+const characters = mxt.collection('characters')!;
+const friends = mxt.collection('friends')!;
+const appearsIn = mxt.collection('appearsIn')!;
 
 const resolvers = {
   Species: {

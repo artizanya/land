@@ -1,6 +1,7 @@
 // -*- coding: utf-8 -*-:
 
 import { db } from '@arangodb';
+import * as gh from '@arangodb/general-graph';
 
 // class ComponentGenesis {
 //   static readonly NATIVE  = 0;
@@ -393,6 +394,8 @@ else if(mxt.isProduction) {
   console.warn(`collection ${processOutputsEdgeCollectionName} \
 already exists. Leaving it untouched.`);
 }
+
+
 
 // if(!db._collection(processesCollectionName)) {
 //   const processes = db._createDocumentCollection(processesCollectionName);
