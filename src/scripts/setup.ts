@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-:
 
 import { db } from '@arangodb';
-import * as gh from '@arangodb/general-graph';
+import * as gm from '@arangodb/general-graph';
 
 // class ComponentGenesis {
 //   static readonly NATIVE  = 0;
