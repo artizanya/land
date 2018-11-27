@@ -19,6 +19,8 @@ const componentTypesEdgeCollectionName = mxt.collectionName('componentTypes');
 const processInputsEdgeCollectionName = mxt.collectionName('processInputs');
 const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 
+const processesGraphName = mxt.collectionName('processes');
+
 type Key = string;
 type ElementKey = string;
 type ComponentKey = string;
@@ -395,6 +397,15 @@ else if(mxt.isProduction) {
 already exists. Leaving it untouched.`);
 }
 
+
+if(!gm._exists(processesGraphName)) {
+  // gm._create
+  console.log('******** ' + processesGraphName);
+}
+else if(mxt.isProduction) {
+  console.warn(`Graph ${processesGraphName} \
+already exists. Leaving it untouched.`);
+}
 
 
 // if(!db._collection(processesCollectionName)) {
