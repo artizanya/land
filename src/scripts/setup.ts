@@ -399,8 +399,18 @@ already exists. Leaving it untouched.`);
 
 
 if(!gm._exists(processesGraphName)) {
-  // gm._create
-  console.log('******** ' + processesGraphName);
+  let processInputsRelation = gm._relation(
+    processInputsEdgeCollectionName,
+    componentsCollectionName, processesCollectionName);
+
+  let processOutputsRelation = gm._relation(
+    processOutputsEdgeCollectionName,
+    processesCollectionName, componentsCollectionName);
+
+  let processEdgeDefinitions = gm._edgeDefinitions(
+    processInputsRelation, processOutputsRelation);
+
+  gm._create(processesGraphName, processEdgeDefinitions);
 }
 else if(mxt.isProduction) {
   console.warn(`Graph ${processesGraphName} \

@@ -1,11 +1,16 @@
 // -*- coding: utf-8 -*-:
 
 import { db } from '@arangodb';
+import * as gm from '@arangodb/general-graph';
 
-db._drop(module.context.collectionName('elements'));
-db._drop(module.context.collectionName('components'));
-db._drop(module.context.collectionName('processes'));
+const mxt = module.context;
 
-db._drop(module.context.collectionName('componentTypes'));
-db._drop(module.context.collectionName('processInputs'));
-db._drop(module.context.collectionName('processOutputs'));
+db._drop(mxt.collectionName('elements'));
+db._drop(mxt.collectionName('components'));
+db._drop(mxt.collectionName('processes'));
+
+db._drop(mxt.collectionName('componentTypes'));
+db._drop(mxt.collectionName('processInputs'));
+db._drop(mxt.collectionName('processOutputs'));
+
+gm._drop(mxt.collectionName('processes'));
