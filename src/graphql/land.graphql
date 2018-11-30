@@ -9,6 +9,15 @@ type Element {
   alternatives: [Element!]!
 }
 
+type Process {
+  id: String!
+  name: String!
+  description: String!
+  origin: String!,
+  inputIds: [String!]!
+  outputIds: [String!]!
+}
+
 type Query {
   element(
     id: String!

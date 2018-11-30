@@ -45,8 +45,8 @@ interface Process {
   description: string;
   // tools: any[];
   // skills: any[];
-  outputs: ComponentKey[];
   inputs: ComponentKey[];
+  outputs: ComponentKey[];
   // origin: string;
   // alternatives: Process[];
 }
