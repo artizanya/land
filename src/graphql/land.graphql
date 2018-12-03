@@ -4,16 +4,18 @@ type Element {
   id: String!
   name: String!
   description: String!
-  origin: String!,
-  processes: [String!]!
-  alternatives: [Element!]!
+}
+
+type Component {
+  id: String!
+  count: Int!
+  elementId: String!
 }
 
 type Process {
   id: String!
   name: String!
   description: String!
-  origin: String!,
   inputIds: [String!]!
   outputIds: [String!]!
 }
@@ -23,7 +25,13 @@ type Query {
     id: String!
   ): Element
 
-  elements: [Element!]!
+  component(
+    id: String!
+  ): Component
+
+  process(
+    id: String!
+  ): Process
 }
 
 schema {

@@ -13,4 +13,4 @@ db._drop(mxt.collectionName('componentTypes'));
 db._drop(mxt.collectionName('processInputs'));
 db._drop(mxt.collectionName('processOutputs'));
 
-gm._drop(mxt.collectionName('processes'));
+gm._drop(mxt.collectionName('processesGraph'));
