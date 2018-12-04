@@ -32,6 +32,10 @@ type Query {
   process(
     id: String!
   ): Process
+
+  # components(
+  #   ids: [String!]!
+  # ): [Component!]
 }
 
 schema {

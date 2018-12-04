@@ -1,12 +1,19 @@
 // Hey Emacs, this is -*- coding: utf-8 -*-
 
 import { db, aql } from '@arangodb';
+// import * as gm from '@arangodb/general-graph';
 
 const mxt = module.context;
+
+// const elementsCollectionName = mxt.collectionName('elements');
+// const componentsCollectionName = mxt.collectionName('components');
+// const processesCollectionName = mxt.collectionName('processes');
 
 const elements = mxt.collection('elements')!;
 const components = mxt.collection('components')!;
 const processes = mxt.collection('processes')!;
+
+const processesGraphName = mxt.collectionName('processesGraph');
 
 const resolvers = {
   Element: {
@@ -30,9 +37,31 @@ const resolvers = {
       _key: args.id
     }),
 
-    process: (obj, args) => processes.firstExample({
-      _key: args.id
-    }),
+    process: (obj, args) => {
+      let process = processes.firstExample({
+        _key: args.id,
+      });
+
+      if(process) {
+        process.inputIds = db._query(aql`
+          FOR vertex
+            IN 1..1
+            INBOUND ${process._id}
+            GRAPH ${processesGraphName}
+            RETURN vertex._key
+        `).toArray();
+
+        process.outputIds = db._query(aql`
+          FOR vertex
+            IN 1..1
+            OUTBOUND ${process._id}
+            GRAPH ${processesGraphName}
+            RETURN vertex._key
+        `).toArray();
+      }
+
+      return process;
+    }
 
     // FOR vertex
     //   IN 1..1
