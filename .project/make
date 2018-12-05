@@ -14,36 +14,32 @@ if [[ ! -d dist/$PRJ_NAME ]]; then
   mkdir -vp "dist/$PRJ_NAME";
 fi
 
-(cd frame
- echo "cd: '`pwd`'"
- cp -vr --parents -t "../dist/$PRJ_NAME/" *)
+echo ".project/make: Copying frame to dist"
 
-echo
+(cd frame
+ if [[ ! -d node_modules ]]; then npm i; fi
+ cp -vur --parents -t "../dist/$PRJ_NAME/" *)
+
+echo ".project/make: Transpiling TypeScript files"
 
 npx --no-install \
     tsc --listEmittedFiles
 
-echo
+echo ".project/make: Copying build to dist"
 
 (cd build
- echo "cd: '`pwd`'"
- find * -name "*.js" -exec cp -v --parents -t "../dist/$PRJ_NAME/" "{}" +)
+ find * -name "*.js" -exec cp -vu --parents -t \
+      "../dist/$PRJ_NAME/" "{}" +)
 
-echo
+echo ".project/make: Copying graphql files to dist"
 
 (cd src
- echo "cd: '`pwd`'"
- find * -name "*.graphql" -exec cp -v --parents -t "../dist/$PRJ_NAME/" "{}" +)
+ find * -name "*.graphql" -exec cp -vu --parents -t \
+      "../dist/$PRJ_NAME/" "{}" +)
 
-echo
-
-(cd dist/$PRJ_NAME
- echo "cd: '`pwd`'"
- npm i)
-
-echo
+echo ".project/make: Creating zip ArangoDB service"
 
 (cd dist
- echo "cd: '`pwd`'"
+ rm -vf $PRJ_NAME.zip
  zip -r "$PRJ_NAME" "$PRJ_NAME"
  echo "'dist/$PRJ_NAME.zip' created.")

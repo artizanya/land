@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+PRJ_PATH="`dirname \"$0\"`"
+PRJ_PATH="`( cd -P \"$PRJ_PATH/..\" && pwd )`"
+
+cd $PRJ_PATH
+rm -vrf node_modules
+
+cd frame
+rm -vrf node_modules
