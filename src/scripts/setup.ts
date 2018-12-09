@@ -22,7 +22,7 @@ const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 const processesGraphName = mxt.collectionName('processesGraph');
 
 type Key = string;
-type ElementId = string;
+type ElementKey = string;
 type ComponentId = string;
 
 interface Element {
@@ -35,8 +35,10 @@ interface Element {
 
 interface Component {
   _key: Key;
+  name: string;
+  description: string;
   count: number;
-  elementId: ElementId;
+  elementKey: ElementKey;
 }
 
 interface Process {
@@ -120,48 +122,66 @@ const elementArray: Element[] = [
 const componentArray: Component[] = [
   {
     _key: '0000',
+    name: 'Bipolar Stepper Motor',
+    description: 'Used to pull head via belt',
     count: 1,
-    elementId: elementsCollectionName + '/0000',
+    elementKey: '0000',
   },
   {
     _key: '0001',
+    name: 'Belt Pulley',
+    description: 'Attaches belt to the motor',
     count: 1,
-    elementId: elementsCollectionName + '/0001',
+    elementKey: '0001',
   },
   {
     _key: '0002',
+    name: 'M3 30mm Cap Screw',
+    description: 'Fastener',
     count: 1,
-    elementId: elementsCollectionName + '/0002',
+    elementKey: '0002',
   },
   {
     _key: '0003',
+    name: 'M3 12mm Cap Screw',
+    description: 'Another fastener',
     count: 1,
-    elementId: elementsCollectionName + '/0003',
+    elementKey: '0003',
   },
   {
     _key: '0004',
+    name: 'M3 Self Locking Nut',
+    description: 'Yet another fastener',
     count: 1,
-    elementId: elementsCollectionName + '/0004',
+    elementKey: '0004',
   },
   {
     _key: '0005',
+    name: '8mm Linear Ball Bearing',
+    description: 'Ball bearing to counteract the motor',
     count: 1,
-    elementId: elementsCollectionName + '/0005',
+    elementKey: '0005',
   },
   {
     _key: '0006',
+    name: 'X Motor Printed Part, Leadscrews',
+    description: 'The part which holds X axis',
     count: 1,
-    elementId: elementsCollectionName + '/0006',
+    elementKey: '0006',
   },
   {
     _key: '0007',
+    name: 'Xmotor Assembly, Leadscrews',
+    description: 'Assembled X axis',
     count: 1,
-    elementId: elementsCollectionName + '/0007',
+    elementKey: '0007',
   },
   {
     _key: '0008',
+    name: 'Budget to buy vitamins',
+    description: 'My Money',
     count: 1,
-    elementId: elementsCollectionName + '/0008',
+    elementKey: '0008',
   },
 ];
 
@@ -319,11 +339,7 @@ already exists. Leaving it untouched.`);
 if(!db._collection(componentsCollectionName)) {
   const components = db._createDocumentCollection(componentsCollectionName);
   componentArray.forEach((component: Component) => {
-    components.save({
-      _key: component._key,
-      count: component.count,
-      elementId: component.elementId,
-    });
+    components.save(component);
   });
 }
 else if(mxt.isProduction) {

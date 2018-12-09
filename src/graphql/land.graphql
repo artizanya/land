@@ -8,16 +8,18 @@ type Element {
 
 type Component {
   id: String!
+  name: String!
+  description: String!
   count: Int!
-  elementId: String!
+  element: Element!
 }
 
 type Process {
   id: String!
   name: String!
   description: String!
-  inputIds: [String!]!
-  outputIds: [String!]!
+  inComponents: [Component!]!
+  outComponents: [Component!]!
 }
 
 type Query {

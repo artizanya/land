@@ -19,26 +19,30 @@ const resolvers = {
   },
 
   Component: {
-    id: (obj) => obj._key
+    id: (obj) => obj._key,
+
+    element: (obj) => elements.firstExample({
+      _key: obj.elementKey
+    }),
   },
 
   Process: {
     id: (obj) => obj._key,
 
-    inputIds: (obj) => db._query(aql`
+    inComponents: (obj) => db._query(aql`
       FOR vertex
         IN 1..1
         INBOUND ${obj._id}
         GRAPH ${processesGraphName}
-        RETURN vertex._key
+        RETURN DOCUMENT(CONCAT("land_components/", vertex._key))
       `).toArray(),
 
-    outputIds: (obj) => db._query(aql`
+    outComponents: (obj) => db._query(aql`
       FOR vertex
         IN 1..1
         OUTBOUND ${obj._id}
         GRAPH ${processesGraphName}
-        RETURN vertex._key
+        RETURN DOCUMENT(CONCAT("land_components/", vertex._key))
       `).toArray(),
   },
 
@@ -61,7 +65,7 @@ const resolvers = {
     //   });
 
     //   if(process) {
-    //     process.inputIds = db._query(aql`
+    //     process.inComponentIds = db._query(aql`
     //       FOR vertex
     //         IN 1..1
     //         INBOUND ${process._id}
@@ -69,7 +73,7 @@ const resolvers = {
     //         RETURN vertex._key
     //     `).toArray();
 
-    //     process.outputIds = db._query(aql`
+    //     process.outComponentIds = db._query(aql`
     //       FOR vertex
     //         IN 1..1
     //         OUTBOUND ${process._id}
