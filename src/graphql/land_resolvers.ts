@@ -34,7 +34,7 @@ const resolvers = {
         IN 1..1
         INBOUND ${obj._id}
         GRAPH ${processesGraphName}
-        RETURN DOCUMENT(CONCAT("land_components/", vertex._key))
+        RETURN DOCUMENT(CONCAT(${components.name()}, "/", vertex._key))
       `).toArray(),
 
     outComponents: (obj) => db._query(aql`
@@ -42,7 +42,7 @@ const resolvers = {
         IN 1..1
         OUTBOUND ${obj._id}
         GRAPH ${processesGraphName}
-        RETURN DOCUMENT(CONCAT("land_components/", vertex._key))
+        RETURN DOCUMENT(CONCAT(${components.name()}, "/", vertex._key))
       `).toArray(),
   },
 

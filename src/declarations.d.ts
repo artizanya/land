@@ -16,3 +16,9 @@ declare module '@arangodb/general-graph' {
     _rev: string;
   } | boolean;
 }
+
+declare namespace ArangoDB {
+  interface Collection<T extends object = any> {
+    name(): string;
+  }
+}
