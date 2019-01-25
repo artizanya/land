@@ -1,12 +1,14 @@
 # Hey Emacs, this is -*- coding: utf-8 -*-
 
 type Element {
+  collection: String!
   id: String!
   name: String!
   description: String!
 }
 
 type Component {
+  collection: String!
   id: String!
   name: String!
   description: String!
@@ -15,6 +17,7 @@ type Component {
 }
 
 type Process {
+  collection: String!
   id: String!
   name: String!
   description: String!

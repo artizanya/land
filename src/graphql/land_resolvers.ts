@@ -15,10 +15,14 @@ const processes = mxt.collection('processes')!;
 
 const resolvers = {
   Element: {
+    collection: (obj) => 'elements',
+
     id: (obj) => obj._key
   },
 
   Component: {
+    collection: (obj) => 'components',
+
     id: (obj) => obj._key,
 
     element: (obj) => elements.firstExample({
@@ -27,6 +31,8 @@ const resolvers = {
   },
 
   Process: {
+    collection: (obj) => 'processes',
+
     id: (obj) => obj._key,
 
     inComponents: (obj) => db._query(aql`
