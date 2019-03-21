@@ -1,13 +1,20 @@
 # Hey Emacs, this is -*- coding: utf-8 -*-
 
-type Element {
+interface Item {
   collection: String!
   id: String!
   name: String!
   description: String!
 }
 
-type Component {
+type Element implements Item {
+  collection: String!
+  id: String!
+  name: String!
+  description: String!
+}
+
+type Component implements Item {
   collection: String!
   id: String!
   name: String!
@@ -16,7 +23,7 @@ type Component {
   element: Element!
 }
 
-type Process {
+type Process implements Item {
   collection: String!
   id: String!
   name: String!
@@ -38,11 +45,21 @@ type Query {
     id: String!
   ): Process
 
+  item(
+    collection: String!,
+    id: String!
+  ): Item
+
   # components(
   #   ids: [String!]!
   # ): [Component!]
 }
 
+type Mutation {
+  updateElement(id: String!): Boolean
+}
+
 schema {
   query: Query
+  mutation: Mutation
 }

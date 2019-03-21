@@ -14,15 +14,21 @@ const components = mxt.collection('components')!;
 const processes = mxt.collection('processes')!;
 
 const resolvers = {
+  Item: {
+    __resolveType: (obj) => {
+      if(obj.collection === 'elements') return 'Element';
+      if(obj.collection === 'components') return 'Component';
+      return 'Process';
+    }
+  },
+
   Element: {
     collection: (obj) => 'elements',
-
     id: (obj) => obj._key
   },
 
   Component: {
     collection: (obj) => 'components',
-
     id: (obj) => obj._key,
 
     element: (obj) => elements.firstExample({
@@ -32,7 +38,6 @@ const resolvers = {
 
   Process: {
     collection: (obj) => 'processes',
-
     id: (obj) => obj._key,
 
     inComponents: (obj) => db._query(aql`
@@ -64,6 +69,17 @@ const resolvers = {
     process: (obj, args) => processes.firstExample({
       _key: args.id,
     }),
+
+    item: (obj, args) => {
+      const collection = mxt.collection(args.collection);
+      if(collection) {
+        return {
+          ...collection.firstExample({_key: args.id}),
+          collection: args.collection
+        };
+      }
+      return null;
+    },
 
     // process: (obj, args) => {
     //   let process = processes.firstExample({
@@ -106,7 +122,14 @@ const resolvers = {
     //     RETURN element
     //   `);
     // },
+  },
+
+  Mutation: {
+    updateElement: (obj, args, context, info) => {
+      return true;
+    }
   }
+
 };
 
 export default resolvers;
