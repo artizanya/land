@@ -11,6 +11,8 @@ import * as gm from '@arangodb/general-graph';
 
 const mxt = module.context;
 
+const artizansCollectionName = mxt.collectionName('artizans');
+const projectsCollectionName = mxt.collectionName('projects');
 const elementsCollectionName = mxt.collectionName('elements');
 const componentsCollectionName = mxt.collectionName('components');
 const processesCollectionName = mxt.collectionName('processes');
@@ -19,11 +21,26 @@ const processesCollectionName = mxt.collectionName('processes');
 const processInputsEdgeCollectionName = mxt.collectionName('processInputs');
 const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 
+const artizanProjectsEdgeCollectionName = mxt.collectionName('artizanProjects');
+
 const processesGraphName = mxt.collectionName('processesGraph');
 
 type Key = string;
 type ElementKey = string;
 type ComponentId = string;
+type ProcessId = string;
+
+interface Artizan {
+  _key: Key;
+  name: string;
+  projectIds: ProjectId[];
+}
+
+interface Project {
+  _key: Key;
+  name: string;
+  processId: ProcessId;
+}
 
 interface Element {
   _key: Key;
@@ -52,6 +69,24 @@ interface Process {
   // origin: string;
   // alternatives: Process[];
 }
+
+const artizanArray: Artizan[] = [
+  {
+    _key: '0000',
+    name: 'ramblehead',
+    projectIds: [
+      projectsCollectionName + '/0000',
+    ]
+  }
+];
+
+const projectArray: Project[] = [
+  {
+    _key: '0000',
+    name: 'ramblehead',
+    processId: processesCollectionName + '/0000',
+  }
+];
 
 const elementArray: Element[] = [
   {
