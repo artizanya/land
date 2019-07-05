@@ -3,12 +3,16 @@
 set -eu
 set -o pipefail
 
+SPATH="$(dirname "${BASH_SOURCE[0]}")"
+if [ ! -d "$SPATH" ]; then SPATH="$PWD"; fi
+SPATH="$(cd "$SPATH" && pwd)"
+
+PRJ_ROOT_PATH="$SPATH/.."
+PRJ_ROOT_PATH="$(cd "$PRJ_ROOT_PATH" && pwd)"
+
 PRJ_NAME=artizanya-land
 
-PRJ_PATH="`dirname \"$0\"`"
-PRJ_PATH="`( cd -P \"$PRJ_PATH/..\" && pwd )`"
-
-cd $PRJ_PATH
+cd "$PRJ_ROOT_PATH" && echo cd $PWD
 
 if [[ ! -d dist/$PRJ_NAME ]]; then
   mkdir -vp "dist/$PRJ_NAME";

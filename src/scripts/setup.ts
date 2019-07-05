@@ -1,7 +1,7 @@
 // Hey Emacs, this is -*- coding: utf-8 -*-
 
-import { db } from '@arangodb';
 import * as gm from '@arangodb/general-graph';
+import { db } from '@arangodb';
 
 // class ComponentGenesis {
 //   static readonly NATIVE  = 0;
@@ -28,18 +28,18 @@ const processesGraphName = mxt.collectionName('processesGraph');
 type Key = string;
 type ElementKey = string;
 type ComponentId = string;
-type ProcessId = string;
+type ProcessKey = string;
 
 interface Artizan {
   _key: Key;
   name: string;
-  projectIds: ProjectId[];
+  projectKeys: Key[];
 }
 
 interface Project {
   _key: Key;
   name: string;
-  processId: ProcessId;
+  processKey: Key;
 }
 
 interface Element {
@@ -74,8 +74,8 @@ const artizanArray: Artizan[] = [
   {
     _key: '0000',
     name: 'ramblehead',
-    projectIds: [
-      projectsCollectionName + '/0000',
+    projectKeys: [
+      '0000',
     ]
   }
 ];
@@ -84,7 +84,7 @@ const projectArray: Project[] = [
   {
     _key: '0000',
     name: 'ramblehead',
-    processId: processesCollectionName + '/0000',
+    processKey: '0000',
   }
 ];
 
@@ -362,7 +362,7 @@ const processArray: Process[] = [
 
 if(!db._collection(elementsCollectionName)) {
   const elements = db._createDocumentCollection(elementsCollectionName);
-  elementArray.forEach((element: Element) => {
+  elementArray.forEach((element: Element): void => {
     elements.save(element);
   });
 }
@@ -373,7 +373,7 @@ already exists. Leaving it untouched.`);
 
 if(!db._collection(componentsCollectionName)) {
   const components = db._createDocumentCollection(componentsCollectionName);
-  componentArray.forEach((component: Component) => {
+  componentArray.forEach((component: Component): void => {
     components.save(component);
   });
 }
@@ -422,7 +422,8 @@ if(!db._collection(processInputsEdgeCollectionName)) {
       processInputs.save(
         componentId,
         processesCollectionName + '/' + process._key,
-        {});
+        {},
+      );
     });
   });
 }
