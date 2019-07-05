@@ -34,7 +34,7 @@ module.exports = {
     'no-undef': 'off',
     'brace-style': ['warn', 'stroustrup', { allowSingleLine: true }],
     curly: ['error', 'multi'],
-    'no-underscore-dangle': ['error', { allowAfterThis: true }],
+    'no-underscore-dangle': 'off',
     'lines-between-class-members': [
       'error', 'always', { exceptAfterSingleLine: true },
     ],

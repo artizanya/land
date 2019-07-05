@@ -1,5 +1,7 @@
 // Hey Emacs, this is -*- coding: utf-8 -*-
 
+/* eslint no-console: 'off' */
+
 import * as gm from '@arangodb/general-graph';
 import { db } from '@arangodb';
 
@@ -12,7 +14,6 @@ import { db } from '@arangodb';
 const mxt = module.context;
 
 const artizansCollectionName = mxt.collectionName('artizans');
-const projectsCollectionName = mxt.collectionName('projects');
 const elementsCollectionName = mxt.collectionName('elements');
 const componentsCollectionName = mxt.collectionName('components');
 const processesCollectionName = mxt.collectionName('processes');
@@ -25,25 +26,29 @@ const artizanProjectsEdgeCollectionName = mxt.collectionName('artizanProjects');
 
 const processesGraphName = mxt.collectionName('processesGraph');
 
-type Key = string;
-type ElementKey = string;
-type ComponentId = string;
+// type GuildKey = string;
+type ArtizanKey = string;
 type ProcessKey = string;
+type ElementKey = string;
+type ComponentKey = string;
+
+// interface Guild {
+//   _key: GuildKey;
+//   name: string;
+//   artizanKeys: Artizan[];
+//   projectKeys: ProcessKey[];
+//   processKeys: ProcessKey[];
+// }
 
 interface Artizan {
-  _key: Key;
-  name: string;
-  projectKeys: Key[];
-}
-
-interface Project {
-  _key: Key;
-  name: string;
-  processKey: Key;
+  _key: ArtizanKey;
+  knownas: string;
+  projectKeys: ProcessKey[];
+  processKeys: ProcessKey[];
 }
 
 interface Element {
-  _key: Key;
+  _key: ElementKey;
   name: string;
   description: string;
   // origin: string;
@@ -51,7 +56,7 @@ interface Element {
 }
 
 interface Component {
-  _key: Key;
+  _key: ComponentKey;
   name: string;
   description: string;
   count: number;
@@ -59,13 +64,13 @@ interface Component {
 }
 
 interface Process {
-  _key: Key;
+  _key: ProcessKey;
   name: string;
   description: string;
   // tools: any[];
   // skills: any[];
-  inputIds: ComponentId[];
-  outputIds: ComponentId[];
+  inputKeys: ComponentKey[];
+  outputKeys: ComponentKey[];
   // origin: string;
   // alternatives: Process[];
 }
@@ -73,19 +78,10 @@ interface Process {
 const artizanArray: Artizan[] = [
   {
     _key: '0000',
-    name: 'ramblehead',
-    projectKeys: [
-      '0000',
-    ]
-  }
-];
-
-const projectArray: Project[] = [
-  {
-    _key: '0000',
-    name: 'ramblehead',
-    processKey: '0000',
-  }
+    knownas: 'ramblehead',
+    projectKeys: ['0000'],
+    processKeys: ['0000'],
+  },
 ];
 
 const elementArray: Element[] = [
@@ -225,17 +221,15 @@ const processArray: Process[] = [
     _key: '0000',
     name: 'Xmotor Assembly, Leadscrews',
     description: '',
-    outputIds: [
-      componentsCollectionName + '/0007',
-    ],
-    inputIds: [
-      componentsCollectionName + '/0000',
-      componentsCollectionName + '/0001',
-      componentsCollectionName + '/0002',
-      componentsCollectionName + '/0003',
-      componentsCollectionName + '/0004',
-      componentsCollectionName + '/0005',
-      componentsCollectionName + '/0006',
+    outputKeys: ['0007'],
+    inputKeys: [
+      '0000',
+      '0001',
+      '0002',
+      '0003',
+      '0004',
+      '0005',
+      '0006',
     ],
     // alternatives: [],
   },
@@ -243,29 +237,29 @@ const processArray: Process[] = [
     _key: '0001',
     name: 'Stepper Motor 17HS4401 Purchase',
     description: '',
-    outputIds: [componentsCollectionName + '/0000'],
-    inputIds: [componentsCollectionName + '/0008'],
+    outputKeys: ['0000'],
+    inputKeys: ['0008'],
   },
   {
     _key: '0002',
     name: 'Belt Pulley Purchase',
     description: '',
-    outputIds: [componentsCollectionName + '/0001'],
-    inputIds: [componentsCollectionName + '/0008'],
+    outputKeys: ['0001'],
+    inputKeys: ['0008'],
   },
   {
     _key: '0003',
     name: 'M3 30mm Cap Screw Purchase',
     description: '',
-    outputIds: [componentsCollectionName + '/0002'],
-    inputIds: [componentsCollectionName + '/0008'],
+    outputKeys: ['0002'],
+    inputKeys: ['0008'],
   },
   {
     _key: '0004',
     name: 'M3 12mm Cap Screw Purchase',
     description: '',
-    outputIds: [componentsCollectionName + '/0003'],
-    inputIds: [componentsCollectionName + '/0008'],
+    outputKeys: ['0003'],
+    inputKeys: ['0008'],
   },
 ];
 
@@ -360,16 +354,30 @@ const processArray: Process[] = [
 //   }]
 // }];
 
+if(!db._collection(artizansCollectionName)) {
+  const artizans = db._createDocumentCollection(artizansCollectionName);
+  artizanArray.forEach((artizan: Artizan): void => {
+    artizans.save({
+      _key: artizan._key,
+      knownas: artizan.knownas,
+    });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${artizansCollectionName} already exists. \
+Leaving it untouched.`,
+);
+
 if(!db._collection(elementsCollectionName)) {
   const elements = db._createDocumentCollection(elementsCollectionName);
   elementArray.forEach((element: Element): void => {
     elements.save(element);
   });
 }
-else if(mxt.isProduction) {
-  console.warn(`collection ${elementsCollectionName} \
-already exists. Leaving it untouched.`);
-}
+else if(mxt.isProduction) console.warn(
+  `collection ${elementsCollectionName} already exists. \
+Leaving it untouched.`,
+);
 
 if(!db._collection(componentsCollectionName)) {
   const components = db._createDocumentCollection(componentsCollectionName);
@@ -377,14 +385,14 @@ if(!db._collection(componentsCollectionName)) {
     components.save(component);
   });
 }
-else if(mxt.isProduction) {
-  console.warn(`collection ${componentsCollectionName} \
-already exists. Leaving it untouched.`);
-}
+else if(mxt.isProduction) console.warn(
+  `collection ${componentsCollectionName} already exists. \
+Leaving it untouched.`,
+);
 
 if(!db._collection(processesCollectionName)) {
   const processes = db._createDocumentCollection(processesCollectionName);
-  processArray.forEach((process: Process) => {
+  processArray.forEach((process: Process): void => {
     processes.save({
       _key: process._key,
       name: process.name,
@@ -392,10 +400,10 @@ if(!db._collection(processesCollectionName)) {
     });
   });
 }
-else if(mxt.isProduction) {
-  console.warn(`collection ${processesCollectionName} \
-already exists. Leaving it untouched.`);
-}
+else if(mxt.isProduction) console.warn(
+  `collection ${processesCollectionName} already exists. \
+Leaving it untouched.`,
+);
 
 // if(!db._collection(componentTypesEdgeCollectionName)) {
 //   const componentTypes =
@@ -417,8 +425,8 @@ if(!db._collection(processInputsEdgeCollectionName)) {
   const processInputs =
     db._createEdgeCollection(processInputsEdgeCollectionName);
 
-  processArray.forEach((process: Process) => {
-    process.inputIds.forEach((componentId: ComponentId) => {
+  processArray.forEach((process: Process): void => {
+    process.inputIds.forEach((componentId: ComponentId): void => {
       processInputs.save(
         componentId,
         processesCollectionName + '/' + process._key,
@@ -427,10 +435,10 @@ if(!db._collection(processInputsEdgeCollectionName)) {
     });
   });
 }
-else if(mxt.isProduction) {
-  console.warn(`collection ${processInputsEdgeCollectionName} \
-already exists. Leaving it untouched.`);
-}
+else if(mxt.isProduction) console.warn(
+  `collection ${processInputsEdgeCollectionName} already exists. \
+Leaving it untouched.`
+);
 
 if(!db._collection(processOutputsEdgeCollectionName)) {
   const processOutputs =
@@ -445,10 +453,10 @@ if(!db._collection(processOutputsEdgeCollectionName)) {
     });
   });
 }
-else if(mxt.isProduction) {
-  console.warn(`collection ${processOutputsEdgeCollectionName} \
-already exists. Leaving it untouched.`);
-}
+else if(mxt.isProduction) console.warn(
+  `collection ${processOutputsEdgeCollectionName} already exists. \
+Leaving it untouched.`,
+);
 
 
 if(!gm._exists(processesGraphName)) {
