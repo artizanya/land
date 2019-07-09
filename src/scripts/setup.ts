@@ -5,17 +5,17 @@
 import * as gm from '@arangodb/general-graph';
 import { db } from '@arangodb';
 
-class ElementGenesis {
-  // All native elements must have one or more associated processes
-  // from which they originate.
-  static readonly native = 0;
+// class Genesis {
+//   // All native elements must have one or more associated processes
+//   // from which they originate.
+//   static readonly native = 0;
 
-  // Foreign elements come from outside Artizanya and do not have
-  // an associated process.
-  static readonly foreign = 1;
+//   // Foreign elements come from outside Artizanya and do not have
+//   // an associated process.
+//   static readonly foreign = 1;
 
-  // static readonly natural = 2;
-}
+//   // static readonly natural = 2;
+// }
 
 const mxt = module.context;
 
@@ -34,6 +34,7 @@ const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 const processesGraphName = mxt.collectionName('processesGraph');
 
 // type GuildKey = string;
+// type VaultKey = string;
 type ArtizanKey = string;
 type ProjectKey = string;
 type ProcessKey = string;
@@ -51,8 +52,17 @@ type ComponentKey = string;
 interface Artizan {
   _key: ArtizanKey;
   knownas: string;
-  projectKeys: ProcessKey[];
+  projectKeys: ProjectKey[];
 }
+
+// interface Part extends Component {
+//   // Part location in Vault
+// }
+
+// interface Vault {
+//   _key: VaultKey;
+//   partKeys: PartKey[];
+// }
 
 interface Project {
   _key: ProjectKey;
@@ -67,9 +77,9 @@ interface Element {
   _key: ElementKey;
   name: string;
   description: string;
-  genesis: ElementGenesis;
   // origin: string;
   // alternatives: Element[];
+  // genesis: Genesis;
 }
 
 interface Component {
@@ -97,6 +107,17 @@ const artizanArray: Artizan[] = [
     _key: '0000',
     knownas: 'ramblehead',
     projectKeys: ['0000'],
+    processKeys: ['0000'],
+    elementKeys: ['0000', '0001', '0002'],
+  },
+];
+
+const projectArray: Project[] = [
+  {
+    _key: '0000',
+    name: 'Hta3D Pritner',
+    description: 'Part-less 3D Pritner Kit',
+    mainProcessKey: '0000',
     processKeys: ['0000'],
     elementKeys: ['0000', '0001', '0002'],
   },
