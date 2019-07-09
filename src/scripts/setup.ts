@@ -5,29 +5,37 @@
 import * as gm from '@arangodb/general-graph';
 import { db } from '@arangodb';
 
-// class ComponentGenesis {
-//   static readonly NATIVE  = 0;
-//   static readonly FOREIGN = 1;
-//   static readonly NATURAL = 2;
-// }
+class ElementGenesis {
+  // All native elements must have one or more associated processes
+  // from which they originate.
+  static readonly native = 0;
+
+  // Foreign elements come from outside Artizanya and do not have
+  // an associated process.
+  static readonly foreign = 1;
+
+  // static readonly natural = 2;
+}
 
 const mxt = module.context;
 
 const artizansCollectionName = mxt.collectionName('artizans');
-const elementsCollectionName = mxt.collectionName('elements');
-const componentsCollectionName = mxt.collectionName('components');
+const projectsCollectionName = mxt.collectionName('projects');
 const processesCollectionName = mxt.collectionName('processes');
+const componentsCollectionName = mxt.collectionName('components');
+const elementsCollectionName = mxt.collectionName('elements');
 
-// const componentTypesEdgeCollectionName = mxt.collectionName('componentTypes');
+const artizanProcessesEdgeCollectionName =
+  mxt.collectionName('artizanProcesses');
+
 const processInputsEdgeCollectionName = mxt.collectionName('processInputs');
 const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
-
-const artizanProjectsEdgeCollectionName = mxt.collectionName('artizanProjects');
 
 const processesGraphName = mxt.collectionName('processesGraph');
 
 // type GuildKey = string;
 type ArtizanKey = string;
+type ProjectKey = string;
 type ProcessKey = string;
 type ElementKey = string;
 type ComponentKey = string;
@@ -44,13 +52,22 @@ interface Artizan {
   _key: ArtizanKey;
   knownas: string;
   projectKeys: ProcessKey[];
+}
+
+interface Project {
+  _key: ProjectKey;
+  name: string;
+  description: string;
+  mainProcessKey: ProcessKey;
   processKeys: ProcessKey[];
+  elementKeys: ElementKey[];
 }
 
 interface Element {
   _key: ElementKey;
   name: string;
   description: string;
+  genesis: ElementGenesis;
   // origin: string;
   // alternatives: Element[];
 }
@@ -81,6 +98,7 @@ const artizanArray: Artizan[] = [
     knownas: 'ramblehead',
     projectKeys: ['0000'],
     processKeys: ['0000'],
+    elementKeys: ['0000', '0001', '0002'],
   },
 ];
 
@@ -147,7 +165,7 @@ const elementArray: Element[] = [
     description: 'UK Money',
     // origin: 'The UK',
     // alternatives: [],
-  }
+  },
 ];
 
 const componentArray: Component[] = [
@@ -368,6 +386,21 @@ else if(mxt.isProduction) console.warn(
 Leaving it untouched.`,
 );
 
+if(!db._collection(processesCollectionName)) {
+  const processes = db._createDocumentCollection(processesCollectionName);
+  processArray.forEach((process: Process): void => {
+    processes.save({
+      _key: process._key,
+      name: process.name,
+      description: process.description,
+    });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${processesCollectionName} already exists. \
+Leaving it untouched.`,
+);
+
 if(!db._collection(elementsCollectionName)) {
   const elements = db._createDocumentCollection(elementsCollectionName);
   elementArray.forEach((element: Element): void => {
@@ -387,21 +420,6 @@ if(!db._collection(componentsCollectionName)) {
 }
 else if(mxt.isProduction) console.warn(
   `collection ${componentsCollectionName} already exists. \
-Leaving it untouched.`,
-);
-
-if(!db._collection(processesCollectionName)) {
-  const processes = db._createDocumentCollection(processesCollectionName);
-  processArray.forEach((process: Process): void => {
-    processes.save({
-      _key: process._key,
-      name: process.name,
-      description: process.description,
-    });
-  });
-}
-else if(mxt.isProduction) console.warn(
-  `collection ${processesCollectionName} already exists. \
 Leaving it untouched.`,
 );
 
@@ -426,10 +444,10 @@ if(!db._collection(processInputsEdgeCollectionName)) {
     db._createEdgeCollection(processInputsEdgeCollectionName);
 
   processArray.forEach((process: Process): void => {
-    process.inputIds.forEach((componentId: ComponentId): void => {
+    process.inputKeys.forEach((componentKey: ComponentKey): void => {
       processInputs.save(
-        componentId,
-        processesCollectionName + '/' + process._key,
+        `${componentsCollectionName}/${componentKey}`,
+        `${processesCollectionName}/${process._key}`,
         {},
       );
     });
@@ -437,19 +455,20 @@ if(!db._collection(processInputsEdgeCollectionName)) {
 }
 else if(mxt.isProduction) console.warn(
   `collection ${processInputsEdgeCollectionName} already exists. \
-Leaving it untouched.`
+Leaving it untouched.`,
 );
 
 if(!db._collection(processOutputsEdgeCollectionName)) {
   const processOutputs =
     db._createEdgeCollection(processOutputsEdgeCollectionName);
 
-  processArray.forEach((process: Process) => {
-    process.outputIds.forEach((componentId: ComponentId) => {
+  processArray.forEach((process: Process): void => {
+    process.outputKeys.forEach((componentKey: ComponentKey): void => {
       processOutputs.save(
-        processesCollectionName + '/' + process._key,
-        componentId,
-        {});
+        `${processesCollectionName}/${process._key}`,
+        `${componentsCollectionName}/${componentKey}`,
+        {},
+      );
     });
   });
 }
@@ -458,26 +477,48 @@ else if(mxt.isProduction) console.warn(
 Leaving it untouched.`,
 );
 
-
 if(!gm._exists(processesGraphName)) {
-  let processInputsRelation = gm._relation(
+  const processInputsRelation = gm._relation(
     processInputsEdgeCollectionName,
-    componentsCollectionName, processesCollectionName);
+    componentsCollectionName,
+    processesCollectionName,
+  );
 
-  let processOutputsRelation = gm._relation(
+  const processOutputsRelation = gm._relation(
     processOutputsEdgeCollectionName,
-    processesCollectionName, componentsCollectionName);
+    processesCollectionName,
+    componentsCollectionName,
+  );
 
-  let processEdgeDefinitions = gm._edgeDefinitions(
-    processInputsRelation, processOutputsRelation);
+  const processEdgeDefinitions = gm._edgeDefinitions(
+    processInputsRelation,
+    processOutputsRelation,
+  );
 
   gm._create(processesGraphName, processEdgeDefinitions);
 }
-else if(mxt.isProduction) {
-  console.warn(`Graph ${processesGraphName} \
-already exists. Leaving it untouched.`);
-}
+else if(mxt.isProduction) console.warn(
+  `Graph ${processesGraphName} already exists. Leaving it untouched.`,
+);
 
+if(!db._collection(artizanProcessesEdgeCollectionName)) {
+  const artizanProcesses =
+    db._createEdgeCollection(artizanProcessesEdgeCollectionName);
+
+  artizanArray.forEach((artizan: Artizan): void => {
+    artizan.processKeys.forEach((processKey: ProcessKey): void => {
+      artizanProcesses.save(
+        `${artizansCollectionName}/${artizan._key}`,
+        `${processesCollectionName}/${processKey}`,
+        {},
+      );
+    });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${artizanProcessesEdgeCollectionName} already exists. \
+Leaving it untouched.`,
+);
 
 // if(!db._collection(processesCollectionName)) {
 //   const processes = db._createDocumentCollection(processesCollectionName);
