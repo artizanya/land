@@ -107,8 +107,6 @@ const artizanArray: Artizan[] = [
     _key: '0000',
     knownas: 'ramblehead',
     projectKeys: ['0000'],
-    processKeys: ['0000'],
-    elementKeys: ['0000', '0001', '0002'],
   },
 ];
 
@@ -118,8 +116,11 @@ const projectArray: Project[] = [
     name: 'Hta3D Pritner',
     description: 'Part-less 3D Pritner Kit',
     mainProcessKey: '0000',
-    processKeys: ['0000'],
-    elementKeys: ['0000', '0001', '0002'],
+    processKeys: ['0000', '0001', '0002', '0003', '0004'],
+    elementKeys: [
+      '0000', '0001', '0002', '0003', '0004',
+      '0005', '0006', '0007', '0008',
+    ],
   },
 ];
 
@@ -192,8 +193,6 @@ const elementArray: Element[] = [
 const componentArray: Component[] = [
   {
     _key: '0000',
-    name: 'Bipolar Stepper Motor',
-    description: 'Used to pull head via belt',
     count: 1,
     elementKey: '0000',
   },
@@ -260,17 +259,40 @@ const processArray: Process[] = [
     _key: '0000',
     name: 'Xmotor Assembly, Leadscrews',
     description: '',
-    outputKeys: ['0007'],
-    inputKeys: [
-      '0000',
-      '0001',
-      '0002',
-      '0003',
-      '0004',
-      '0005',
-      '0006',
+    outputs: [
+      elementKey: '0007',
+      count: 1,
     ],
-    // alternatives: [],
+    inputs: [
+      {
+        elementKey: '0000',
+        count: 1,
+      },
+      {
+        elementKey: '0001',
+        count: 1,
+      },
+      {
+        elementKey: '0002',
+        count: 1,
+      },
+      {
+        elementKey: '0003',
+        count: 1,
+      },
+      {
+        elementKey: '0004',
+        count: 1,
+      },
+      {
+        elementKey: '0005',
+        count: 1,
+      },
+      {
+        elementKey: '0006',
+        count: 1,
+      },
+    ],
   },
   {
     _key: '0001',
