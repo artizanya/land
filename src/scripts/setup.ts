@@ -5,24 +5,21 @@
 import * as gm from '@arangodb/general-graph';
 import { db } from '@arangodb';
 
-// class Genesis {
-//   // All native elements must have one or more associated processes
-//   // from which they originate.
-//   static readonly native = 0;
+class Genesis {
+  // Internal elements must have one or more associated processes
+  // from which they originate.
+  static readonly internal = 0;
 
-//   // Foreign elements come from outside Artizanya and do not have
-//   // an associated process.
-//   static readonly foreign = 1;
-
-//   // static readonly natural = 2;
-// }
+  // External elements come from outside Artizanya and do not have
+  // an associated process.
+  static readonly external = 1;
+}
 
 const mxt = module.context;
 
 const artizansCollectionName = mxt.collectionName('artizans');
 const projectsCollectionName = mxt.collectionName('projects');
 const processesCollectionName = mxt.collectionName('processes');
-const componentsCollectionName = mxt.collectionName('components');
 const elementsCollectionName = mxt.collectionName('elements');
 
 const artizanProcessesEdgeCollectionName =
@@ -33,13 +30,7 @@ const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 
 const processesGraphName = mxt.collectionName('processesGraph');
 
-// type GuildKey = string;
-// type VaultKey = string;
-type ArtizanKey = string;
-type ProjectKey = string;
-type ProcessKey = string;
-type ElementKey = string;
-type ComponentKey = string;
+type Key = string;
 
 // interface Guild {
 //   _key: GuildKey;
@@ -50,9 +41,9 @@ type ComponentKey = string;
 // }
 
 interface Artizan {
-  _key: ArtizanKey;
+  _key: Key;
   knownas: string;
-  projectKeys: ProjectKey[];
+  projectKeys: Key[];
 }
 
 // interface Part extends Component {
@@ -65,40 +56,63 @@ interface Artizan {
 // }
 
 interface Project {
-  _key: ProjectKey;
+  _key: Key;
   name: string;
   description: string;
-  mainProcessKey: ProcessKey;
-  processKeys: ProcessKey[];
-  elementKeys: ElementKey[];
+  mainProcessKey: Key;
+  processKeys: Key[];
+  elementKeys: Key[];
 }
 
-interface Element {
-  _key: ElementKey;
-  name: string;
-  description: string;
+interface Piece {
+  kind: string;
+  _key: Key;
+  genesis: Genesis;
   // origin: string;
   // alternatives: Element[];
-  // genesis: Genesis;
 }
 
-interface Component {
-  _key: ComponentKey;
+interface Component extends Piece {
+  kind: 'Component';
   name: string;
   description: string;
-  count: number;
-  elementKey: ElementKey;
 }
+
+interface Currency extends Piece {
+  kind: 'Currency';
+
+  // GBP, Euro etc.
+  // TODO: Currency type should be some kind of enumeration
+  type: string;
+}
+
+type Element = Component | Currency;
+
+interface PieceIO {
+  kind: string;
+  elementKey: Key;
+}
+
+interface ComponentIO extends PieceIO {
+  kind: 'ComponentIO';
+  count: number;
+}
+
+interface CurrencyIO extends PieceIO {
+  kind: 'CurrencyIO';
+  amount: number;
+}
+
+type ElementIO = ComponentIO | CurrencyIO;
 
 interface Process {
-  _key: ProcessKey;
+  _key: Key;
   name: string;
   description: string;
+  inputs: ElementIO[];
+  outputs: ElementIO[];
   // tools: any[];
   // skills: any[];
-  inputKeys: ComponentKey[];
-  outputKeys: ComponentKey[];
-  // origin: string;
   // alternatives: Process[];
 }
 
@@ -126,131 +140,84 @@ const projectArray: Project[] = [
 
 const elementArray: Element[] = [
   {
+    kind: 'Component',
     _key: '0000',
+    genesis: Genesis.internal,
     name: '17HS4401',
     description: 'Bipolar Stepper Motor',
     // origin: 'MotionKing (China) Motor Industry',
     // alternatives: [],
   },
   {
+    kind: 'Component',
     _key: '0001',
+    genesis: Genesis.external,
     name: '3D076',
     description: 'GT2 20T Belt Pulley',
     // origin: 'WODE',
     // alternatives: [],
   },
   {
+    kind: 'Component',
     _key: '0002',
+    genesis: Genesis.external,
     name: 'M3 30mm Cap Screw',
     description: 'M3 30mm Cap Screw',
     // origin: '',
     // alternatives: [],
   },
   {
+    kind: 'Component',
     _key: '0003',
+    genesis: Genesis.external,
     name: 'M3 12mm Cap Screw',
     description: 'M3 12mm Cap Screw',
     // origin: '',
     // alternatives: [],
   },
   {
+    kind: 'Component',
     _key: '0004',
+    genesis: Genesis.external,
     name: 'M3 Self Locking Nut',
     description: 'M3 Self Locking Nut',
     // origin: '',
     // alternatives: [],
   },
   {
+    kind: 'Component',
     _key: '0005',
+    genesis: Genesis.external,
     name: 'LM8UU',
     description: '8mm Linear Ball Bearing',
     // origin: '',
     // alternatives: [],
   },
   {
+    kind: 'Component',
     _key: '0006',
+    genesis: Genesis.external,
     name: 'X Motor Printed Part, Leadscrews',
     description: '',
     // origin: 'HTA3D',
     // alternatives: [],
   },
   {
+    kind: 'Component',
     _key: '0007',
+    genesis: Genesis.external,
     name: 'Xmotor Assembly, Leadscrews',
     description: '',
     // origin: 'HTA3D',
     // alternatives: [],
   },
   {
+    kind: 'Currency',
     _key: '0008',
-    name: 'GBP',
-    description: 'UK Money',
+    type: 'GBP',
+    genesis: Genesis.external,
     // origin: 'The UK',
     // alternatives: [],
-  },
-];
-
-const componentArray: Component[] = [
-  {
-    _key: '0000',
-    count: 1,
-    elementKey: '0000',
-  },
-  {
-    _key: '0001',
-    name: 'Belt Pulley',
-    description: 'Attaches belt to the motor',
-    count: 1,
-    elementKey: '0001',
-  },
-  {
-    _key: '0002',
-    name: 'M3 30mm Cap Screw',
-    description: 'Fastener',
-    count: 1,
-    elementKey: '0002',
-  },
-  {
-    _key: '0003',
-    name: 'M3 12mm Cap Screw',
-    description: 'Another fastener',
-    count: 1,
-    elementKey: '0003',
-  },
-  {
-    _key: '0004',
-    name: 'M3 Self Locking Nut',
-    description: 'Yet another fastener',
-    count: 1,
-    elementKey: '0004',
-  },
-  {
-    _key: '0005',
-    name: '8mm Linear Ball Bearing',
-    description: 'Ball bearing to counteract the motor',
-    count: 1,
-    elementKey: '0005',
-  },
-  {
-    _key: '0006',
-    name: 'X Motor Printed Part, Leadscrews',
-    description: 'The part which holds X axis',
-    count: 1,
-    elementKey: '0006',
-  },
-  {
-    _key: '0007',
-    name: 'Xmotor Assembly, Leadscrews',
-    description: 'Assembled X axis',
-    count: 1,
-    elementKey: '0007',
-  },
-  {
-    _key: '0008',
-    name: 'Budget to buy vitamins',
-    description: 'My Money',
-    count: 1,
-    elementKey: '0008',
   },
 ];
 
@@ -260,35 +227,45 @@ const processArray: Process[] = [
     name: 'Xmotor Assembly, Leadscrews',
     description: '',
     outputs: [
-      elementKey: '0007',
-      count: 1,
+      {
+        kind: 'ComponentIO',
+        elementKey: '0007',
+        count: 1,
+      },
     ],
     inputs: [
       {
+        kind: 'ComponentIO',
         elementKey: '0000',
         count: 1,
       },
       {
+        kind: 'ComponentIO',
         elementKey: '0001',
         count: 1,
       },
       {
+        kind: 'ComponentIO',
         elementKey: '0002',
         count: 1,
       },
       {
+        kind: 'ComponentIO',
         elementKey: '0003',
         count: 1,
       },
       {
+        kind: 'ComponentIO',
         elementKey: '0004',
         count: 1,
       },
       {
+        kind: 'ComponentIO',
         elementKey: '0005',
         count: 1,
       },
       {
+        kind: 'ComponentIO',
         elementKey: '0006',
         count: 1,
       },
@@ -298,29 +275,77 @@ const processArray: Process[] = [
     _key: '0001',
     name: 'Stepper Motor 17HS4401 Purchase',
     description: '',
-    outputKeys: ['0000'],
-    inputKeys: ['0008'],
+    outputs: [
+      {
+        kind: 'ComponentIO',
+        elementKey: '0000',
+        count: 1,
+      },
+    ],
+    inputs: [
+      {
+        kind: 'CurrencyIO',
+        elementKey: '0008',
+        amount: 1,
+      },
+    ],
   },
   {
     _key: '0002',
     name: 'Belt Pulley Purchase',
     description: '',
-    outputKeys: ['0001'],
-    inputKeys: ['0008'],
+    outputs: [
+      {
+        kind: 'ComponentIO',
+        elementKey: '0001',
+        count: 1,
+      },
+    ],
+    inputs: [
+      {
+        kind: 'CurrencyIO',
+        elementKey: '0008',
+        amount: 1,
+      },
+    ],
   },
   {
     _key: '0003',
     name: 'M3 30mm Cap Screw Purchase',
     description: '',
-    outputKeys: ['0002'],
-    inputKeys: ['0008'],
+    outputs: [
+      {
+        kind: 'ComponentIO',
+        elementKey: '0002',
+        count: 1,
+      },
+    ],
+    inputs: [
+      {
+        kind: 'CurrencyIO',
+        elementKey: '0008',
+        amount: 1,
+      },
+    ],
   },
   {
     _key: '0004',
     name: 'M3 12mm Cap Screw Purchase',
     description: '',
-    outputKeys: ['0003'],
-    inputKeys: ['0008'],
+    outputs: [
+      {
+        kind: 'ComponentIO',
+        elementKey: '0003',
+        count: 1,
+      },
+    ],
+    inputs: [
+      {
+        kind: 'CurrencyIO',
+        elementKey: '0008',
+        amount: 1,
+      },
+    ],
   },
 ];
 
@@ -358,62 +383,6 @@ const processArray: Process[] = [
 //   static readonly BYPRODUCT  = 3;
 //   static readonly PRODUCT    = 4;
 // }
-
-// let processes = [{
-//   _key: '0001',
-//   name: 'Xmotor, Leadscrews version',
-//   description: 'Manual assembly of Xmotor, Leadscrews version',
-//   origin: 'ramblehead',
-//   output: [{
-//     element: 'elements/0008',
-//     role: ComponentRole.PRODUCT,
-//     genesis: ComponentGenesis.NATIVE,
-//     count: 1,
-//   }],
-//   input: [{
-//     element: 'elements/0001',
-//     variants: null,
-//     role: ComponentRole.PART,
-//     genesis: ComponentGenesis.FOREIGN,
-//     count: 1,
-//   }, {
-//     element: 'elements/0002',
-//     variants: null,
-//     role: ComponentRole.PART,
-//     genesis: ComponentGenesis.FOREIGN,
-//     count: 1,
-//   }, {
-//     element: 'elements/0003',
-//     variants: null,
-//     role: ComponentRole.PART,
-//     genesis: ComponentGenesis.FOREIGN,
-//     count: 1,
-//   }, {
-//     element: 'elements/0004',
-//     variants: null,
-//     role: ComponentRole.PART,
-//     genesis: ComponentGenesis.FOREIGN,
-//     count: 7,
-//   }, {
-//     element: 'elements/0005',
-//     variants: null,
-//     role: ComponentRole.PART,
-//     genesis: ComponentGenesis.FOREIGN,
-//     count: 1,
-//   }, {
-//     element: 'elements/0006',
-//     variants: null,
-//     role: ComponentRole.PART,
-//     genesis: ComponentGenesis.FOREIGN,
-//     count: 2,
-//   }, {
-//     element: 'elements/0007',
-//     variants: null,
-//     role: ComponentRole.PART,
-//     genesis: ComponentGenesis.FOREIGN,
-//     count: 1,
-//   }]
-// }];
 
 if(!db._collection(artizansCollectionName)) {
   const artizans = db._createDocumentCollection(artizansCollectionName);
