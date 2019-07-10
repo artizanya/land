@@ -424,14 +424,19 @@ else if(mxt.isProduction) console.warn(
 Leaving it untouched.`,
 );
 
-if(!db._collection(componentsCollectionName)) {
-  const components = db._createDocumentCollection(componentsCollectionName);
-  componentArray.forEach((component: Component): void => {
-    components.save(component);
+if(!db._collection(projectsCollectionName)) {
+  const components = db._createDocumentCollection(projectsCollectionName);
+  projectArray.forEach((project: Project): void => {
+    components.save({
+      _key: project._key,
+      name: project.name,
+      description: project.description,
+      mainProcessKey: project.mainProcessKey,
+    });
   });
 }
 else if(mxt.isProduction) console.warn(
-  `collection ${componentsCollectionName} already exists. \
+  `collection ${projectsCollectionName} already exists. \
 Leaving it untouched.`,
 );
 
