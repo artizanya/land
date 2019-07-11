@@ -47,8 +47,10 @@ module.exports = {
     }],
     'no-param-reassign': ['error', { props: false }],
     quotes: ['error', 'single'],
-    // Let tide (or tsc) and js2-mode handle undefined variables
-    // '@typescript-eslint/no-unused-vars': 'off',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', {
+      ignoreRestSiblings: true,
+    }],
     indent: 'off',
     '@typescript-eslint/indent': ['warn', 2],
     '@typescript-eslint/explicit-member-accessibility': ['warn', {

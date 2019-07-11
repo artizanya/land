@@ -30,20 +30,21 @@ const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 
 const processesGraphName = mxt.collectionName('processesGraph');
 
-type Key = string;
+type Id = string;
+type Value = Id | {};
 
 // interface Guild {
-//   _key: GuildKey;
+//   id: GuildKey;
 //   name: string;
 //   artizanKeys: Artizan[];
 //   projectKeys: ProcessKey[];
 //   processKeys: ProcessKey[];
 // }
 
-interface Artizan {
-  _key: Key;
+interface Artizan<V extends Value = {}> {
+  id: Id;
   knownas: string;
-  projectKeys: Key[];
+  projects: V extends Id ? Id[] : Project[];
 }
 
 // interface Part extends Component {
@@ -51,22 +52,22 @@ interface Artizan {
 // }
 
 // interface Vault {
-//   _key: VaultKey;
+//   id: VaultKey;
 //   partKeys: PartKey[];
 // }
 
-interface Project {
-  _key: Key;
+interface Project<V extends Value = {}> {
+  id: Id;
   name: string;
   description: string;
-  mainProcessKey: Key;
-  processKeys: Key[];
-  elementKeys: Key[];
+  mainProcessId: Id;
+  processes: V extends Id ? Id[] : Process[];
+  elements: V extends Id ? Id[] : Element[];
 }
 
 interface Piece {
   kind: string;
-  _key: Key;
+  id: Id;
   genesis: Genesis;
   // origin: string;
   // alternatives: Element[];
@@ -88,50 +89,52 @@ interface Currency extends Piece {
 
 type Element = Component | Currency;
 
-interface PieceIO {
+interface PieceIO<V extends Value = {}> {
   kind: string;
-  elementKey: Key;
+  element: V extends Id ? Id : Element;
 }
 
-interface ComponentIO extends PieceIO {
-  kind: 'ComponentIO';
+interface ComponentIO<V extends Value = {}> extends PieceIO<V> {
+  kind: Component['kind'];
+  element: V extends Id ? Id : Component;
   count: number;
 }
 
-interface CurrencyIO extends PieceIO {
-  kind: 'CurrencyIO';
+interface CurrencyIO<V extends Value = {}> extends PieceIO<V> {
+  kind: Currency['kind'];
+  element: V extends Id ? Id : Currency;
   amount: number;
 }
 
-type ElementIO = ComponentIO | CurrencyIO;
+type ElementIO<V extends Value = {}> = ComponentIO<V> | CurrencyIO<V>;
 
-interface Process {
-  _key: Key;
+interface Process<V extends Value = {}> {
+  id: Id;
   name: string;
   description: string;
-  inputs: ElementIO[];
-  outputs: ElementIO[];
+  inputs: ElementIO<V>[];
+  outputs: ElementIO<V>[];
   // tools: any[];
   // skills: any[];
   // alternatives: Process[];
 }
 
-const artizanArray: Artizan[] = [
+const artizanArray: Artizan<Id>[] = [
   {
-    _key: '0000',
+    id: '0000',
     knownas: 'ramblehead',
-    projectKeys: ['0000'],
+    projects: ['0000'],
   },
 ];
 
-const projectArray: Project[] = [
+const projectArray: Project<Id>[] = [
   {
-    _key: '0000',
+    id: '0000',
     name: 'Hta3D Pritner',
     description: 'Part-less 3D Pritner Kit',
-    mainProcessKey: '0000',
-    processKeys: ['0000', '0001', '0002', '0003', '0004'],
-    elementKeys: [
+    mainProcessId: '0000',
+    processes: ['0000', '0001', '0002', '0003', '0004'],
+    elements: [
       '0000', '0001', '0002', '0003', '0004',
       '0005', '0006', '0007', '0008',
     ],
@@ -141,7 +144,7 @@ const projectArray: Project[] = [
 const elementArray: Element[] = [
   {
     kind: 'Component',
-    _key: '0000',
+    id: '0000',
     genesis: Genesis.internal,
     name: '17HS4401',
     description: 'Bipolar Stepper Motor',
@@ -150,7 +153,7 @@ const elementArray: Element[] = [
   },
   {
     kind: 'Component',
-    _key: '0001',
+    id: '0001',
     genesis: Genesis.external,
     name: '3D076',
     description: 'GT2 20T Belt Pulley',
@@ -159,7 +162,7 @@ const elementArray: Element[] = [
   },
   {
     kind: 'Component',
-    _key: '0002',
+    id: '0002',
     genesis: Genesis.external,
     name: 'M3 30mm Cap Screw',
     description: 'M3 30mm Cap Screw',
@@ -168,7 +171,7 @@ const elementArray: Element[] = [
   },
   {
     kind: 'Component',
-    _key: '0003',
+    id: '0003',
     genesis: Genesis.external,
     name: 'M3 12mm Cap Screw',
     description: 'M3 12mm Cap Screw',
@@ -177,7 +180,7 @@ const elementArray: Element[] = [
   },
   {
     kind: 'Component',
-    _key: '0004',
+    id: '0004',
     genesis: Genesis.external,
     name: 'M3 Self Locking Nut',
     description: 'M3 Self Locking Nut',
@@ -186,7 +189,7 @@ const elementArray: Element[] = [
   },
   {
     kind: 'Component',
-    _key: '0005',
+    id: '0005',
     genesis: Genesis.external,
     name: 'LM8UU',
     description: '8mm Linear Ball Bearing',
@@ -195,7 +198,7 @@ const elementArray: Element[] = [
   },
   {
     kind: 'Component',
-    _key: '0006',
+    id: '0006',
     genesis: Genesis.external,
     name: 'X Motor Printed Part, Leadscrews',
     description: '',
@@ -204,7 +207,7 @@ const elementArray: Element[] = [
   },
   {
     kind: 'Component',
-    _key: '0007',
+    id: '0007',
     genesis: Genesis.external,
     name: 'Xmotor Assembly, Leadscrews',
     description: '',
@@ -213,7 +216,7 @@ const elementArray: Element[] = [
   },
   {
     kind: 'Currency',
-    _key: '0008',
+    id: '0008',
     type: 'GBP',
     genesis: Genesis.external,
     // origin: 'The UK',
@@ -221,128 +224,128 @@ const elementArray: Element[] = [
   },
 ];
 
-const processArray: Process[] = [
+const processArray: Process<Id>[] = [
   {
-    _key: '0000',
+    id: '0000',
     name: 'Xmotor Assembly, Leadscrews',
     description: '',
     outputs: [
       {
-        kind: 'ComponentIO',
-        elementKey: '0007',
+        kind: 'Component',
+        element: '0007',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'ComponentIO',
-        elementKey: '0000',
+        kind: 'Component',
+        element: '0000',
         count: 1,
       },
       {
-        kind: 'ComponentIO',
-        elementKey: '0001',
+        kind: 'Component',
+        element: '0001',
         count: 1,
       },
       {
-        kind: 'ComponentIO',
-        elementKey: '0002',
+        kind: 'Component',
+        element: '0002',
         count: 1,
       },
       {
-        kind: 'ComponentIO',
-        elementKey: '0003',
+        kind: 'Component',
+        element: '0003',
         count: 1,
       },
       {
-        kind: 'ComponentIO',
-        elementKey: '0004',
+        kind: 'Component',
+        element: '0004',
         count: 1,
       },
       {
-        kind: 'ComponentIO',
-        elementKey: '0005',
+        kind: 'Component',
+        element: '0005',
         count: 1,
       },
       {
-        kind: 'ComponentIO',
-        elementKey: '0006',
+        kind: 'Component',
+        element: '0006',
         count: 1,
       },
     ],
   },
   {
-    _key: '0001',
+    id: '0001',
     name: 'Stepper Motor 17HS4401 Purchase',
     description: '',
     outputs: [
       {
-        kind: 'ComponentIO',
-        elementKey: '0000',
+        kind: 'Component',
+        element: '0000',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'CurrencyIO',
-        elementKey: '0008',
+        kind: 'Currency',
+        element: '0008',
         amount: 1,
       },
     ],
   },
   {
-    _key: '0002',
+    id: '0002',
     name: 'Belt Pulley Purchase',
     description: '',
     outputs: [
       {
-        kind: 'ComponentIO',
-        elementKey: '0001',
+        kind: 'Component',
+        element: '0001',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'CurrencyIO',
-        elementKey: '0008',
+        kind: 'Currency',
+        element: '0008',
         amount: 1,
       },
     ],
   },
   {
-    _key: '0003',
+    id: '0003',
     name: 'M3 30mm Cap Screw Purchase',
     description: '',
     outputs: [
       {
-        kind: 'ComponentIO',
-        elementKey: '0002',
+        kind: 'Component',
+        element: '0002',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'CurrencyIO',
-        elementKey: '0008',
+        kind: 'Currency',
+        element: '0008',
         amount: 1,
       },
     ],
   },
   {
-    _key: '0004',
+    id: '0004',
     name: 'M3 12mm Cap Screw Purchase',
     description: '',
     outputs: [
       {
-        kind: 'ComponentIO',
-        elementKey: '0003',
+        kind: 'Component',
+        element: '0003',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'CurrencyIO',
-        elementKey: '0008',
+        kind: 'Currency',
+        element: '0008',
         amount: 1,
       },
     ],
@@ -386,9 +389,9 @@ const processArray: Process[] = [
 
 if(!db._collection(artizansCollectionName)) {
   const artizans = db._createDocumentCollection(artizansCollectionName);
-  artizanArray.forEach((artizan: Artizan): void => {
+  artizanArray.forEach((artizan: Artizan<Id>): void => {
     artizans.save({
-      _key: artizan._key,
+      _key: artizan.id,
       knownas: artizan.knownas,
     });
   });
@@ -398,11 +401,27 @@ else if(mxt.isProduction) console.warn(
 Leaving it untouched.`,
 );
 
+if(!db._collection(projectsCollectionName)) {
+  const projects = db._createDocumentCollection(projectsCollectionName);
+  projectArray.forEach((project: Project<Id>): void => {
+    projects.save({
+      _key: project.id,
+      name: project.name,
+      description: project.description,
+      mainProcessId: project.mainProcessId,
+    });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${projectsCollectionName} already exists. \
+Leaving it untouched.`,
+);
+
 if(!db._collection(processesCollectionName)) {
   const processes = db._createDocumentCollection(processesCollectionName);
   processArray.forEach((process: Process): void => {
     processes.save({
-      _key: process._key,
+      _key: process.id,
       name: process.name,
       description: process.description,
     });
@@ -416,27 +435,12 @@ Leaving it untouched.`,
 if(!db._collection(elementsCollectionName)) {
   const elements = db._createDocumentCollection(elementsCollectionName);
   elementArray.forEach((element: Element): void => {
-    elements.save(element);
+    const { id, ...props } = element;
+    elements.save({ _key: id, ...props });
   });
 }
 else if(mxt.isProduction) console.warn(
   `collection ${elementsCollectionName} already exists. \
-Leaving it untouched.`,
-);
-
-if(!db._collection(projectsCollectionName)) {
-  const components = db._createDocumentCollection(projectsCollectionName);
-  projectArray.forEach((project: Project): void => {
-    components.save({
-      _key: project._key,
-      name: project.name,
-      description: project.description,
-      mainProcessKey: project.mainProcessKey,
-    });
-  });
-}
-else if(mxt.isProduction) console.warn(
-  `collection ${projectsCollectionName} already exists. \
 Leaving it untouched.`,
 );
 
@@ -446,7 +450,7 @@ Leaving it untouched.`,
 
 //   componentArray.forEach(component => {
 //     componentTypes.save(
-//       componentsCollectionName + '/' + component._key,
+//       componentsCollectionName + '/' + component.id,
 //       component.element,
 //       {});
 //   });
@@ -460,12 +464,13 @@ if(!db._collection(processInputsEdgeCollectionName)) {
   const processInputs =
     db._createEdgeCollection(processInputsEdgeCollectionName);
 
-  processArray.forEach((process: Process): void => {
-    process.inputKeys.forEach((componentKey: ComponentKey): void => {
+  processArray.forEach((process: Process<Id>): void => {
+    process.inputs.forEach((elementIO: ElementIO<Id>): void => {
+      const { element: elementId, ...props } = elementIO;
       processInputs.save(
-        `${componentsCollectionName}/${componentKey}`,
-        `${processesCollectionName}/${process._key}`,
-        {},
+        `${elementsCollectionName}/${elementId}`,
+        `${processesCollectionName}/${process.id}`,
+        { ...props },
       );
     });
   });
@@ -479,12 +484,13 @@ if(!db._collection(processOutputsEdgeCollectionName)) {
   const processOutputs =
     db._createEdgeCollection(processOutputsEdgeCollectionName);
 
-  processArray.forEach((process: Process): void => {
-    process.outputKeys.forEach((componentKey: ComponentKey): void => {
+  processArray.forEach((process: Process<Id>): void => {
+    process.outputs.forEach((elementIO: ElementIO<Id>): void => {
+      const { element: elementId, ...props } = elementIO;
       processOutputs.save(
-        `${processesCollectionName}/${process._key}`,
-        `${componentsCollectionName}/${componentKey}`,
-        {},
+        `${processesCollectionName}/${process.id}`,
+        `${elementsCollectionName}/${elementId}`,
+        { ...props },
       );
     });
   });
@@ -525,7 +531,7 @@ if(!db._collection(artizanProcessesEdgeCollectionName)) {
   artizanArray.forEach((artizan: Artizan): void => {
     artizan.processKeys.forEach((processKey: ProcessKey): void => {
       artizanProcesses.save(
-        `${artizansCollectionName}/${artizan._key}`,
+        `${artizansCollectionName}/${artizan.id}`,
         `${processesCollectionName}/${processKey}`,
         {},
       );
