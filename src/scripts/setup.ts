@@ -65,7 +65,7 @@ interface Project<V extends Value = {}> {
   elements: V extends Id ? Id[] : Element[];
 }
 
-interface Piece {
+interface ElementCommon {
   kind: string;
   id: Id;
   genesis: Genesis;
@@ -73,13 +73,13 @@ interface Piece {
   // alternatives: Element[];
 }
 
-interface Component extends Piece {
+interface Component extends ElementCommon {
   kind: 'Component';
   name: string;
   description: string;
 }
 
-interface Currency extends Piece {
+interface Currency extends ElementCommon {
   kind: 'Currency';
 
   // GBP, Euro etc.
@@ -89,31 +89,37 @@ interface Currency extends Piece {
 
 type Element = Component | Currency;
 
-interface PieceIO<V extends Value = {}> {
+interface ProcessElementCommon<V extends Value = {}> {
   kind: string;
   element: V extends Id ? Id : Element;
 }
 
-interface ComponentIO<V extends Value = {}> extends PieceIO<V> {
+interface ProcessComponent<
+  V extends Value = {}
+> extends ProcessElementCommon<V> {
   kind: Component['kind'];
   element: V extends Id ? Id : Component;
   count: number;
 }
 
-interface CurrencyIO<V extends Value = {}> extends PieceIO<V> {
+interface ProcessCurrency<
+  V extends Value = {}
+> extends ProcessElementCommon<V> {
   kind: Currency['kind'];
   element: V extends Id ? Id : Currency;
   amount: number;
 }
 
-type ElementIO<V extends Value = {}> = ComponentIO<V> | CurrencyIO<V>;
+type ProcessElement<V extends Value = {}> =
+  ProcessComponent<V> |
+  ProcessCurrency<V>;
 
 interface Process<V extends Value = {}> {
   id: Id;
   name: string;
   description: string;
-  inputs: ElementIO<V>[];
-  outputs: ElementIO<V>[];
+  inputs: ProcessElement<V>[];
+  outputs: ProcessElement<V>[];
   // tools: any[];
   // skills: any[];
   // alternatives: Process[];
@@ -465,7 +471,7 @@ if(!db._collection(processInputsEdgeCollectionName)) {
     db._createEdgeCollection(processInputsEdgeCollectionName);
 
   processArray.forEach((process: Process<Id>): void => {
-    process.inputs.forEach((elementIO: ElementIO<Id>): void => {
+    process.inputs.forEach((elementIO: ProcessElement<Id>): void => {
       const { element: elementId, ...props } = elementIO;
       processInputs.save(
         `${elementsCollectionName}/${elementId}`,
@@ -485,7 +491,7 @@ if(!db._collection(processOutputsEdgeCollectionName)) {
     db._createEdgeCollection(processOutputsEdgeCollectionName);
 
   processArray.forEach((process: Process<Id>): void => {
-    process.outputs.forEach((elementIO: ElementIO<Id>): void => {
+    process.outputs.forEach((elementIO: ProcessElement<Id>): void => {
       const { element: elementId, ...props } = elementIO;
       processOutputs.save(
         `${processesCollectionName}/${process.id}`,
