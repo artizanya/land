@@ -25,6 +25,8 @@ const elementsCollectionName = mxt.collectionName('elements');
 const artizanProcessesEdgeCollectionName =
   mxt.collectionName('artizanProcesses');
 
+
+const artizanProjectsEdgeCollectionName = mxt.collectionName('artizanProjects');
 const processInputsEdgeCollectionName = mxt.collectionName('processInputs');
 const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 
@@ -441,8 +443,8 @@ Leaving it untouched.`,
 if(!db._collection(elementsCollectionName)) {
   const elements = db._createDocumentCollection(elementsCollectionName);
   elementArray.forEach((element: Element): void => {
-    const { id, ...props } = element;
-    elements.save({ _key: id, ...props });
+    const { id, ...rest } = element;
+    elements.save({ _key: id, ...rest });
   });
 }
 else if(mxt.isProduction) console.warn(
@@ -450,33 +452,36 @@ else if(mxt.isProduction) console.warn(
 Leaving it untouched.`,
 );
 
-// if(!db._collection(componentTypesEdgeCollectionName)) {
-//   const componentTypes =
-//     db._createEdgeCollection(componentTypesEdgeCollectionName);
+if(!db._collection(artizanProjectsEdgeCollectionName)) {
+  const processInputs =
+    db._createEdgeCollection(artizanProjectsEdgeCollectionName);
 
-//   componentArray.forEach(component => {
-//     componentTypes.save(
-//       componentsCollectionName + '/' + component.id,
-//       component.element,
-//       {});
-//   });
-// }
-// else if(mxt.isProduction) {
-//   console.warn(`collection ${componentTypesEdgeCollectionName} \
-// already exists. Leaving it untouched.`);
-// }
+  artizanArray.forEach((artizan: Artizan<Id>): void => {
+    artizan.projects.forEach((projectId: Id): void => {
+      processInputs.save(
+        `${elementsCollectionName}/${artizan.id}`,
+        `${processesCollectionName}/${projectId}`,
+        {},
+      );
+    });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${artizanProjectsEdgeCollectionName} already exists. \
+Leaving it untouched.`,
+);
 
 if(!db._collection(processInputsEdgeCollectionName)) {
   const processInputs =
     db._createEdgeCollection(processInputsEdgeCollectionName);
 
   processArray.forEach((process: Process<Id>): void => {
-    process.inputs.forEach((elementIO: ProcessElement<Id>): void => {
-      const { element: elementId, ...props } = elementIO;
+    process.inputs.forEach((processElement: ProcessElement<Id>): void => {
+      const { element: elementId, ...rest } = processElement;
       processInputs.save(
         `${elementsCollectionName}/${elementId}`,
         `${processesCollectionName}/${process.id}`,
-        { ...props },
+        { ...rest },
       );
     });
   });
@@ -491,12 +496,12 @@ if(!db._collection(processOutputsEdgeCollectionName)) {
     db._createEdgeCollection(processOutputsEdgeCollectionName);
 
   processArray.forEach((process: Process<Id>): void => {
-    process.outputs.forEach((elementIO: ProcessElement<Id>): void => {
-      const { element: elementId, ...props } = elementIO;
+    process.outputs.forEach((processElement: ProcessElement<Id>): void => {
+      const { element: elementId, ...rest } = processElement;
       processOutputs.save(
         `${processesCollectionName}/${process.id}`,
         `${elementsCollectionName}/${elementId}`,
-        { ...props },
+        { ...rest },
       );
     });
   });
