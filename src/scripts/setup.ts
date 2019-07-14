@@ -58,13 +58,21 @@ interface Artizan<V extends Value = {}> {
 //   partKeys: PartKey[];
 // }
 
+interface ProjectProcess<V extends Value = {}> {
+  process: V extends Id ? Id[] : Process<V>[];
+}
+
+interface ProjectElement<V extends Value = {}> {
+  element: V extends Id ? Id : Element;
+}
+
 interface Project<V extends Value = {}> {
   id: Id;
   name: string;
   description: string;
   mainProcessId: Id;
-  processes: V extends Id ? Id[] : Process[];
-  elements: V extends Id ? Id[] : Element[];
+  processes: ProjectProcess<V>[];
+  elements: ProjectElement<V>[];
 }
 
 interface ElementCommon {
