@@ -59,7 +59,7 @@ interface Artizan<V extends Value = {}> {
 // }
 
 interface ProjectProcess<V extends Value = {}> {
-  process: V extends Id ? Id[] : Process<V>[];
+  process: V extends Id ? Id : Process<V>;
 }
 
 interface ProjectElement<V extends Value = {}> {
@@ -149,10 +149,23 @@ const projectArray: Project<Id>[] = [
     name: 'Hta3D Pritner',
     description: 'Part-less 3D Pritner Kit',
     mainProcessId: '0000',
-    processes: ['0000', '0001', '0002', '0003', '0004'],
+    processes: [
+      { process: '0000' },
+      { process: '0001' },
+      { process: '0002' },
+      { process: '0003' },
+      { process: '0004' },
+    ],
     elements: [
-      '0000', '0001', '0002', '0003', '0004',
-      '0005', '0006', '0007', '0008',
+      { element: '0000' },
+      { element: '0001' },
+      { element: '0002' },
+      { element: '0003' },
+      { element: '0004' },
+      { element: '0005' },
+      { element: '0006' },
+      { element: '0007' },
+      { element: '0008' },
     ],
   },
 ];
