@@ -25,8 +25,15 @@ const elementsCollectionName = mxt.collectionName('elements');
 const artizanProcessesEdgeCollectionName =
   mxt.collectionName('artizanProcesses');
 
-
 const artizanProjectsEdgeCollectionName = mxt.collectionName('artizanProjects');
+
+const projectMainProcessEdgeCollectionName =
+  mxt.collectionName('projectMainProcess');
+const projectProcessesEdgeCollectionName =
+  mxt.collectionName('projectProcesses');
+const projectElementsEdgeCollectionName =
+  mxt.collectionName('projectElements');
+
 const processInputsEdgeCollectionName = mxt.collectionName('processInputs');
 const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 
@@ -70,7 +77,7 @@ interface Project<V extends Value = {}> {
   id: Id;
   name: string;
   description: string;
-  mainProcessId: Id;
+  mainProcess: ProjectProcess<V>;
   processes: ProjectProcess<V>[];
   elements: ProjectElement<V>[];
 }
