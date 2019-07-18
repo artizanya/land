@@ -50,10 +50,14 @@ type Value = Id | {};
 //   processKeys: ProcessKey[];
 // }
 
+interface ArtizanProject<V extends Value = {}> {
+  project: V extends Id ? Id : Project<V>;
+}
+
 interface Artizan<V extends Value = {}> {
   id: Id;
   knownas: string;
-  projects: V extends Id ? Id[] : Project[];
+  projects: ArtizanProject<V>[];
 }
 
 // interface Part extends Component {
@@ -146,7 +150,9 @@ const artizanArray: Artizan<Id>[] = [
   {
     id: '0000',
     knownas: 'ramblehead',
-    projects: ['0000'],
+    projects: [
+      { project: '0000' },
+    ],
   },
 ];
 
@@ -155,7 +161,7 @@ const projectArray: Project<Id>[] = [
     id: '0000',
     name: 'Hta3D Pritner',
     description: 'Part-less 3D Pritner Kit',
-    mainProcessId: '0000',
+    mainProcess: { process: '0000' },
     processes: [
       { process: '0000' },
       { process: '0001' },
@@ -423,13 +429,13 @@ const processArray: Process<Id>[] = [
 //   static readonly PRODUCT    = 4;
 // }
 
+// /b/{ Bootstrap artizans collection and related edges
+
 if(!db._collection(artizansCollectionName)) {
   const artizans = db._createDocumentCollection(artizansCollectionName);
   artizanArray.forEach((artizan: Artizan<Id>): void => {
-    artizans.save({
-      _key: artizan.id,
-      knownas: artizan.knownas,
-    });
+    const { id, projects, ...rest } = artizan;
+    artizans.save({ _key: id, ...rest });
   });
 }
 else if(mxt.isProduction) console.warn(
@@ -437,15 +443,33 @@ else if(mxt.isProduction) console.warn(
 Leaving it untouched.`,
 );
 
+if(!db._collection(artizanProjectsEdgeCollectionName)) {
+  const artizanProjects =
+    db._createEdgeCollection(artizanProjectsEdgeCollectionName);
+
+  artizanArray.forEach((artizan: Artizan<Id>): void => {
+    artizan.projects.forEach((artizanProject: ArtizanProject<Id>): void => {
+      const { project: projectId } = artizanProject;
+      artizanProjects.save(
+        `${elementsCollectionName}/${artizan.id}`,
+        `${processesCollectionName}/${projectId}`,
+        {},
+      );
+    });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${artizanProjectsEdgeCollectionName} already exists. \
+Leaving it untouched.`,
+);
+
+// /b/} Bootstrap artizans collection and related edges
+
 if(!db._collection(projectsCollectionName)) {
   const projects = db._createDocumentCollection(projectsCollectionName);
   projectArray.forEach((project: Project<Id>): void => {
-    projects.save({
-      _key: project.id,
-      name: project.name,
-      description: project.description,
-      mainProcessId: project.mainProcessId,
-    });
+    const { id, mainProcess, processes, elements, ...rest } = project;
+    projects.save({ _key: id, ...rest });
   });
 }
 else if(mxt.isProduction) console.warn(
@@ -456,11 +480,8 @@ Leaving it untouched.`,
 if(!db._collection(processesCollectionName)) {
   const processes = db._createDocumentCollection(processesCollectionName);
   processArray.forEach((process: Process): void => {
-    processes.save({
-      _key: process.id,
-      name: process.name,
-      description: process.description,
-    });
+    const { id, inputs, outputs, ...rest } = process;
+    processes.save({ _key: id, ...rest });
   });
 }
 else if(mxt.isProduction) console.warn(
@@ -477,25 +498,6 @@ if(!db._collection(elementsCollectionName)) {
 }
 else if(mxt.isProduction) console.warn(
   `collection ${elementsCollectionName} already exists. \
-Leaving it untouched.`,
-);
-
-if(!db._collection(artizanProjectsEdgeCollectionName)) {
-  const processInputs =
-    db._createEdgeCollection(artizanProjectsEdgeCollectionName);
-
-  artizanArray.forEach((artizan: Artizan<Id>): void => {
-    artizan.projects.forEach((projectId: Id): void => {
-      processInputs.save(
-        `${elementsCollectionName}/${artizan.id}`,
-        `${processesCollectionName}/${projectId}`,
-        {},
-      );
-    });
-  });
-}
-else if(mxt.isProduction) console.warn(
-  `collection ${artizanProjectsEdgeCollectionName} already exists. \
 Leaving it untouched.`,
 );
 
