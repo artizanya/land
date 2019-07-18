@@ -22,10 +22,8 @@ const projectsCollectionName = mxt.collectionName('projects');
 const processesCollectionName = mxt.collectionName('processes');
 const elementsCollectionName = mxt.collectionName('elements');
 
-const artizanProcessesEdgeCollectionName =
-  mxt.collectionName('artizanProcesses');
-
-const artizanProjectsEdgeCollectionName = mxt.collectionName('artizanProjects');
+const artizanProjectsEdgeCollectionName =
+  mxt.collectionName('artizanProjects');
 
 const projectMainProcessEdgeCollectionName =
   mxt.collectionName('projectMainProcess');
@@ -465,6 +463,8 @@ Leaving it untouched.`,
 
 // /b/} Bootstrap artizans collection and related edges
 
+// /b/{ Bootstrap projects collection and related edges
+
 if(!db._collection(projectsCollectionName)) {
   const projects = db._createDocumentCollection(projectsCollectionName);
   projectArray.forEach((project: Project<Id>): void => {
@@ -477,6 +477,68 @@ else if(mxt.isProduction) console.warn(
 Leaving it untouched.`,
 );
 
+if(!db._collection(projectMainProcessEdgeCollectionName)) {
+  const projectMainProcess =
+    db._createEdgeCollection(projectMainProcessEdgeCollectionName);
+
+  projectArray.forEach((project: Project<Id>): void => {
+    const { process: mainProcessId, ...rest } = project.mainProcess;
+    projectMainProcess.save(
+      `${projectsCollectionName}/${project.id}`,
+      `${processesCollectionName}/${mainProcessId}`,
+      { ...rest },
+    );
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${projectMainProcessEdgeCollectionName} already exists. \
+Leaving it untouched.`,
+);
+
+if(!db._collection(projectProcessesEdgeCollectionName)) {
+  const projectProcesses =
+    db._createEdgeCollection(projectProcessesEdgeCollectionName);
+
+  projectArray.forEach((project: Project<Id>): void => {
+    project.processes.forEach((process: ProjectProcess<Id>): void => {
+      const { process: processId, ...rest } = process;
+      projectProcesses.save(
+        `${projectsCollectionName}/${project.id}`,
+        `${processesCollectionName}/${processId}`,
+        { ...rest },
+      );
+    });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${projectProcessesEdgeCollectionName} already exists. \
+Leaving it untouched.`,
+);
+
+if(!db._collection(projectElementsEdgeCollectionName)) {
+  const projectElements =
+    db._createEdgeCollection(projectElementsEdgeCollectionName);
+
+  projectArray.forEach((project: Project<Id>): void => {
+    project.elements.forEach((element: ProjectElement<Id>): void => {
+      const { element: elementId, ...rest } = element;
+      projectElements.save(
+        `${projectsCollectionName}/${project.id}`,
+        `${elementsCollectionName}/${elementId}`,
+        { ...rest },
+      );
+    });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${projectElementsEdgeCollectionName} already exists. \
+Leaving it untouched.`,
+);
+
+// /b/} Bootstrap projects collection and related edges
+
+// /b/{ Bootstrap processes collection and related edges
+
 if(!db._collection(processesCollectionName)) {
   const processes = db._createDocumentCollection(processesCollectionName);
   processArray.forEach((process: Process): void => {
@@ -486,18 +548,6 @@ if(!db._collection(processesCollectionName)) {
 }
 else if(mxt.isProduction) console.warn(
   `collection ${processesCollectionName} already exists. \
-Leaving it untouched.`,
-);
-
-if(!db._collection(elementsCollectionName)) {
-  const elements = db._createDocumentCollection(elementsCollectionName);
-  elementArray.forEach((element: Element): void => {
-    const { id, ...rest } = element;
-    elements.save({ _key: id, ...rest });
-  });
-}
-else if(mxt.isProduction) console.warn(
-  `collection ${elementsCollectionName} already exists. \
 Leaving it untouched.`,
 );
 
@@ -541,17 +591,36 @@ else if(mxt.isProduction) console.warn(
 Leaving it untouched.`,
 );
 
+// /b/} Bootstrap processes collection and related edges
+
+// /b/{ Bootstrap elements collection and related edges
+
+if(!db._collection(elementsCollectionName)) {
+  const elementsCollection =
+    db._createDocumentCollection(elementsCollectionName);
+  elementArray.forEach((element: Element): void => {
+    const { id, ...rest } = element;
+    elementsCollection.save({ _key: id, ...rest });
+  });
+}
+else if(mxt.isProduction) console.warn(
+  `collection ${elementsCollectionName} already exists. \
+Leaving it untouched.`,
+);
+
+// /b/} Bootstrap elements collection and related edges
+
 if(!gm._exists(processesGraphName)) {
   const processInputsRelation = gm._relation(
     processInputsEdgeCollectionName,
-    componentsCollectionName,
+    elementsCollectionName,
     processesCollectionName,
   );
 
   const processOutputsRelation = gm._relation(
     processOutputsEdgeCollectionName,
     processesCollectionName,
-    componentsCollectionName,
+    elementsCollectionName,
   );
 
   const processEdgeDefinitions = gm._edgeDefinitions(
@@ -563,25 +632,6 @@ if(!gm._exists(processesGraphName)) {
 }
 else if(mxt.isProduction) console.warn(
   `Graph ${processesGraphName} already exists. Leaving it untouched.`,
-);
-
-if(!db._collection(artizanProcessesEdgeCollectionName)) {
-  const artizanProcesses =
-    db._createEdgeCollection(artizanProcessesEdgeCollectionName);
-
-  artizanArray.forEach((artizan: Artizan): void => {
-    artizan.processKeys.forEach((processKey: ProcessKey): void => {
-      artizanProcesses.save(
-        `${artizansCollectionName}/${artizan.id}`,
-        `${processesCollectionName}/${processKey}`,
-        {},
-      );
-    });
-  });
-}
-else if(mxt.isProduction) console.warn(
-  `collection ${artizanProcessesEdgeCollectionName} already exists. \
-Leaving it untouched.`,
 );
 
 // if(!db._collection(processesCollectionName)) {
