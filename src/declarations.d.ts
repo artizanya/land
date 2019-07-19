@@ -17,8 +17,8 @@ declare module '@arangodb/general-graph' {
   } | boolean;
 }
 
-declare namespace ArangoDB {
-  interface Collection<T extends object = any> {
-    name(): string;
-  }
-}
+// declare namespace ArangoDB {
+//   interface Collection<T extends object = any> {
+//     name(): string;
+//   }
+// }
