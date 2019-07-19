@@ -32,15 +32,13 @@ const processesGraphName = mxt.collectionName('processesGraph');
 type Id = string;
 type Value = Id | {};
 
-class Genesis {
+type Genesis =
   // Internal elements must have one or more associated processes
   // from which they originate.
-  static readonly internal = 0;
-
+  'internal' |
   // External elements come from outside Artizanya and do not have
   // an associated process.
-  static readonly external = 1;
-}
+  'external';
 
 // interface Guild {
 //   id: GuildKey;
@@ -187,7 +185,7 @@ const elementArray: Element[] = [
   {
     kind: 'Component',
     id: '0000',
-    genesis: Genesis.internal,
+    genesis: 'internal',
     name: '17HS4401',
     description: 'Bipolar Stepper Motor',
     // origin: 'MotionKing (China) Motor Industry',
@@ -196,7 +194,7 @@ const elementArray: Element[] = [
   {
     kind: 'Component',
     id: '0001',
-    genesis: Genesis.external,
+    genesis: 'external',
     name: '3D076',
     description: 'GT2 20T Belt Pulley',
     // origin: 'WODE',
@@ -205,7 +203,7 @@ const elementArray: Element[] = [
   {
     kind: 'Component',
     id: '0002',
-    genesis: Genesis.external,
+    genesis: 'external',
     name: 'M3 30mm Cap Screw',
     description: 'M3 30mm Cap Screw',
     // origin: '',
@@ -214,7 +212,7 @@ const elementArray: Element[] = [
   {
     kind: 'Component',
     id: '0003',
-    genesis: Genesis.external,
+    genesis: 'external',
     name: 'M3 12mm Cap Screw',
     description: 'M3 12mm Cap Screw',
     // origin: '',
@@ -223,7 +221,7 @@ const elementArray: Element[] = [
   {
     kind: 'Component',
     id: '0004',
-    genesis: Genesis.external,
+    genesis: 'external',
     name: 'M3 Self Locking Nut',
     description: 'M3 Self Locking Nut',
     // origin: '',
@@ -232,7 +230,7 @@ const elementArray: Element[] = [
   {
     kind: 'Component',
     id: '0005',
-    genesis: Genesis.external,
+    genesis: 'external',
     name: 'LM8UU',
     description: '8mm Linear Ball Bearing',
     // origin: '',
@@ -241,7 +239,7 @@ const elementArray: Element[] = [
   {
     kind: 'Component',
     id: '0006',
-    genesis: Genesis.external,
+    genesis: 'external',
     name: 'X Motor Printed Part, Leadscrews',
     description: '',
     // origin: 'HTA3D',
@@ -250,7 +248,7 @@ const elementArray: Element[] = [
   {
     kind: 'Component',
     id: '0007',
-    genesis: Genesis.external,
+    genesis: 'external',
     name: 'Xmotor Assembly, Leadscrews',
     description: '',
     // origin: 'HTA3D',
@@ -260,7 +258,7 @@ const elementArray: Element[] = [
     kind: 'Currency',
     id: '0008',
     type: 'GBP',
-    genesis: Genesis.external,
+    genesis: 'external',
     // origin: 'The UK',
     // alternatives: [],
   },
@@ -451,7 +449,7 @@ if(!db._collection(artizanProjectsEdgeCollectionName)) {
     artizan.projects.forEach((artizanProject: ArtizanProject<Id>): void => {
       const { project: projectId, ...rest } = artizanProject;
       artizanProjects.save(
-        `${elementsCollectionName}/${artizan.id}`,
+        `${artizansCollectionName}/${artizan.id}`,
         `${projectsCollectionName}/${projectId}`,
         { ...rest },
       );

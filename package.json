@@ -2,8 +2,7 @@
   "name": "artizanya-land",
   "version": "0.0.0",
   "description": "The Land of Artizanya",
-  "author": "ramblehead",
-  "license": "GPL-3.0",
+  "author": "Victor Rybynok",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ramblehead/artizanya-land.git"
@@ -14,10 +13,11 @@
     "lint": "eslint -c eslint.config.js --ignore-path .gitignore --ignore-path .lintignore --ext .js,.ts ."
   },
   "keywords": [],
-  "author": "Victor Rybynok",
-  "license": "?",
   "eslintConfig": {
     "extends": "./eslint.config.js"
+  },
+  "dependencies": {
+    "graphql": "^14.4.2"
   },
   "devDependencies": {
     "@types/arangodb": "^3.5.0",
@@ -31,7 +31,6 @@
     "eslint-plugin-import": "^2.18.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.14.2",
-    "graphql": "^14.4.2",
     "graphql-tools": "^4.0.5",
     "lodash": "^4.17.11",
     "typescript": "^3.5.2"

@@ -1,10 +1,9 @@
 // -*- coding: utf-8 -*-
 
-const createGraphQLRouter = require('@arangodb/foxx/graphql');
-
 import * as graphqlModule from 'graphql';
-
 import schemaExequtable from './graphql/schema';
+
+const createGraphQLRouter = require('@arangodb/foxx/graphql');
 
 const router = createGraphQLRouter({
   schema: schemaExequtable,
