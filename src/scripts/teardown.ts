@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-:
 
-import * as gm from '@arangodb/general-graph';
+import gm from '@arangodb/general-graph';
 import { db } from '@arangodb';
 
 const mxt = module.context;

@@ -5,6 +5,7 @@
     "strictNullChecks": true,
     // "maxNodeModuleJsDepth": 50,
     "module": "commonjs",
+    "esModuleInterop": true,
     "target": "es2015",
     "lib": [
       "es2017",
