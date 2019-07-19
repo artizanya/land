@@ -116,7 +116,7 @@ interface ProcessElementCommon<V extends Value = {}> {
 interface ProcessComponent<
   V extends Value = {}
 > extends ProcessElementCommon<V> {
-  kind: Component['kind'];
+  kind: 'ProcessComponent';
   element: V extends Id ? Id : Component;
   count: number;
 }
@@ -124,7 +124,7 @@ interface ProcessComponent<
 interface ProcessCurrency<
   V extends Value = {}
 > extends ProcessElementCommon<V> {
-  kind: Currency['kind'];
+  kind: 'ProcessCurrency';
   element: V extends Id ? Id : Currency;
   amount: number;
 }
@@ -271,44 +271,44 @@ const processArray: Process<Id>[] = [
     description: '',
     outputs: [
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0007',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0000',
         count: 1,
       },
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0001',
         count: 1,
       },
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0002',
         count: 1,
       },
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0003',
         count: 1,
       },
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0004',
         count: 1,
       },
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0005',
         count: 1,
       },
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0006',
         count: 1,
       },
@@ -320,14 +320,14 @@ const processArray: Process<Id>[] = [
     description: '',
     outputs: [
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0000',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'Currency',
+        kind: 'ProcessCurrency',
         element: '0008',
         amount: 1,
       },
@@ -339,14 +339,14 @@ const processArray: Process<Id>[] = [
     description: '',
     outputs: [
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0001',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'Currency',
+        kind: 'ProcessCurrency',
         element: '0008',
         amount: 1,
       },
@@ -358,14 +358,14 @@ const processArray: Process<Id>[] = [
     description: '',
     outputs: [
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0002',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'Currency',
+        kind: 'ProcessCurrency',
         element: '0008',
         amount: 1,
       },
@@ -377,14 +377,14 @@ const processArray: Process<Id>[] = [
     description: '',
     outputs: [
       {
-        kind: 'Component',
+        kind: 'ProcessComponent',
         element: '0003',
         count: 1,
       },
     ],
     inputs: [
       {
-        kind: 'Currency',
+        kind: 'ProcessCurrency',
         element: '0008',
         amount: 1,
       },
