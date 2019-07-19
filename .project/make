@@ -21,7 +21,7 @@ fi
 echo ".project/make: Copying frame to dist"
 
 (cd frame
- if [[ ! -d node_modules ]]; then npm i; fi
+ if [[ ! -d node_modules ]]; then npm ci; fi
  cp -vur --parents -t "../dist/$PRJ_NAME/" *)
 
 echo ".project/make: Transpiling TypeScript files"
