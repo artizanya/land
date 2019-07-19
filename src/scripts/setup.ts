@@ -5,16 +5,6 @@
 import * as gm from '@arangodb/general-graph';
 import { db } from '@arangodb';
 
-class Genesis {
-  // Internal elements must have one or more associated processes
-  // from which they originate.
-  static readonly internal = 0;
-
-  // External elements come from outside Artizanya and do not have
-  // an associated process.
-  static readonly external = 1;
-}
-
 const mxt = module.context;
 
 const artizansCollectionName = mxt.collectionName('artizans');
@@ -35,10 +25,22 @@ const projectElementsEdgeCollectionName =
 const processInputsEdgeCollectionName = mxt.collectionName('processInputs');
 const processOutputsEdgeCollectionName = mxt.collectionName('processOutputs');
 
+const artizansGraphName = mxt.collectionName('artizansGraph');
+const projectsGraphName = mxt.collectionName('projectsGraph');
 const processesGraphName = mxt.collectionName('processesGraph');
 
 type Id = string;
 type Value = Id | {};
+
+class Genesis {
+  // Internal elements must have one or more associated processes
+  // from which they originate.
+  static readonly internal = 0;
+
+  // External elements come from outside Artizanya and do not have
+  // an associated process.
+  static readonly external = 1;
+}
 
 // interface Guild {
 //   id: GuildKey;
@@ -610,6 +612,64 @@ Leaving it untouched.`,
 
 // /b/} Bootstrap elements collection and related edges
 
+// /b/{ Bootstrap artizansGraph
+
+if(!gm._exists(artizansGraphName)) {
+  const artizanProjectsRelation = gm._relation(
+    artizanProjectsEdgeCollectionName,
+    artizansCollectionName,
+    projectsCollectionName,
+  );
+
+  const artizanEdgeDefinitions = gm._edgeDefinitions(
+    artizanProjectsRelation,
+  );
+
+  gm._create(artizansGraphName, artizanEdgeDefinitions);
+}
+else if(mxt.isProduction) console.warn(
+  `Graph ${artizansGraphName} already exists. Leaving it untouched.`,
+);
+
+// /b/} Bootstrap artizansGraph
+
+// /b/{ Bootstrap projectsGraph
+
+if(!gm._exists(projectsGraphName)) {
+  const projectMainProcessRelation = gm._relation(
+    projectMainProcessEdgeCollectionName,
+    projectsCollectionName,
+    processesCollectionName,
+  );
+
+  const projectProcessesRelation = gm._relation(
+    projectProcessesEdgeCollectionName,
+    projectsCollectionName,
+    processesCollectionName,
+  );
+
+  const projectElementsRelation = gm._relation(
+    projectElementsEdgeCollectionName,
+    projectsCollectionName,
+    elementsCollectionName,
+  );
+
+  const projectEdgeDefinitions = gm._edgeDefinitions(
+    projectMainProcessRelation,
+    projectProcessesRelation,
+    projectElementsRelation,
+  );
+
+  gm._create(projectsGraphName, projectEdgeDefinitions);
+}
+else if(mxt.isProduction) console.warn(
+  `Graph ${projectsGraphName} already exists. Leaving it untouched.`,
+);
+
+// /b/} Bootstrap projectsGraphName
+
+// /b/{ Bootstrap processesGraph
+
 if(!gm._exists(processesGraphName)) {
   const processInputsRelation = gm._relation(
     processInputsEdgeCollectionName,
@@ -634,48 +694,4 @@ else if(mxt.isProduction) console.warn(
   `Graph ${processesGraphName} already exists. Leaving it untouched.`,
 );
 
-// if(!db._collection(processesCollectionName)) {
-//   const processes = db._createDocumentCollection(processesCollectionName);
-//   processArray.forEach((process: Process) => {
-//     processes.save(process);
-//   });
-// }
-// else if(mxt.isProduction) {
-//   console.warn(`collection ${processesCollectionName} \
-// already exists. Leaving it untouched.`);
-// }
-
-// const processesInputsCollectionName =
-//   mxt.collectionName('componentTypes');
-
-// if(!db._collection(processesInputsCollectionName)) {
-//   const componentTypes =
-//     db._createEdgeCollection(processesInputsCollectionName);
-
-//   [
-//     ['0000', '0000'],
-//     ['0001', '0000'],
-//     ['0002', '0000'],
-//     ['0003', '0000'],
-//     ['0004', '0000'],
-//     ['0005', '0000'],
-//     ['0006', '0000'],
-//   ].forEach(pair => {
-//     componentTypes.save(
-//       elementsCollectionName + '/' + pair[0],
-//       processesInputsCollectionName + '/' + pair[1],
-//       {}
-//     );
-//   });
-
-//   componentTypes.save(
-//     elementsCollectionName + '/0000',
-//     processesInputsCollectionName + '/0000',
-//     {}
-//   );
-
-// }
-// else if(mxt.isProduction) {
-//   console.warn(`collection ${processesInputsCollectionName} \
-// already exists. Leaving it untouched.`);
-// }
+// /b/} Bootstrap processesGraph
