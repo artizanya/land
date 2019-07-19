@@ -449,11 +449,11 @@ if(!db._collection(artizanProjectsEdgeCollectionName)) {
 
   artizanArray.forEach((artizan: Artizan<Id>): void => {
     artizan.projects.forEach((artizanProject: ArtizanProject<Id>): void => {
-      const { project: projectId } = artizanProject;
+      const { project: projectId, ...rest } = artizanProject;
       artizanProjects.save(
         `${elementsCollectionName}/${artizan.id}`,
-        `${processesCollectionName}/${projectId}`,
-        {},
+        `${projectsCollectionName}/${projectId}`,
+        { ...rest },
       );
     });
   });
